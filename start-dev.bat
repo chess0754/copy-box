@@ -1,0 +1,13 @@
+@echo off
+echo Starting Magic React Electron Application in Development Mode...
+echo.
+echo Starting Vite dev server...
+start "Vite Dev Server" cmd /k npm run dev
+echo.
+echo Waiting for Vite server to start...
+timeout /t 5 /nobreak >nul
+echo.
+echo Starting Electron...
+set VITE_DEV_SERVER_URL=http://localhost:5173
+npx electron .
+pause

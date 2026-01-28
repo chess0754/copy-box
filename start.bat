@@ -1,0 +1,9 @@
+@echo off
+echo Starting Magic React Electron Application...
+echo.
+echo Building the application...
+call npm run build
+echo.
+echo Starting Electron...
+npx electron .
+pause
