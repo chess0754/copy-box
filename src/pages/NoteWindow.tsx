@@ -6,6 +6,33 @@ import { useNoteStore } from "../store/noteStore";
 
 const { TextArea } = Input;
 
+// URL 检测正则
+const URL_REGEX = /(https?:\/\/[^\s<>"{}|\\^`[\]]+)/g;
+
+// 将文本中的 URL 转换为可点击的链接
+const renderContentWithLinks = (content: string) => {
+  const parts = content.split(URL_REGEX);
+  return parts.map((part, index) => {
+    if (URL_REGEX.test(part)) {
+      URL_REGEX.lastIndex = 0;
+      return (
+        <a
+          key={index}
+          href="#"
+          onClick={(e) => {
+            e.preventDefault();
+            window.electronAPI.openExternalUrl(part);
+          }}
+          style={{ color: "#1677ff" }}
+        >
+          {part}
+        </a>
+      );
+    }
+    return part;
+  });
+};
+
 const NoteWindow: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { notes, updateNote } = useNoteStore();
@@ -106,6 +133,22 @@ const NoteWindow: React.FC = () => {
           }}
           placeholder="在此输入便签内容..."
         />
+        {content && (
+          <div
+            style={{
+              marginTop: "8px",
+              padding: "8px",
+              background: "#f5f5f5",
+              borderRadius: "4px",
+              maxHeight: "120px",
+              overflow: "auto",
+              whiteSpace: "pre-wrap",
+              wordBreak: "break-all",
+            }}
+          >
+            {renderContentWithLinks(content)}
+          </div>
+        )}
         <div
           style={{
             textAlign: "right",

@@ -25,6 +25,34 @@ import { useNoteStore } from "../store/noteStore";
 const { TextArea } = Input;
 const { Text } = Typography;
 
+// URL 检测正则
+const URL_REGEX = /(https?:\/\/[^\s<>"{}|\\^`[\]]+)/g;
+
+// 将文本中的 URL 转换为可点击的链接
+const renderContentWithLinks = (content: string) => {
+  const parts = content.split(URL_REGEX);
+  return parts.map((part, index) => {
+    if (URL_REGEX.test(part)) {
+      URL_REGEX.lastIndex = 0;
+      return (
+        <a
+          key={index}
+          href="#"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            window.electronAPI.openExternalUrl(part);
+          }}
+          style={{ color: "#1677ff" }}
+        >
+          {part}
+        </a>
+      );
+    }
+    return part;
+  });
+};
+
 const Clipboard: React.FC = () => {
   const { history, addItem, updateItem, deleteItem, clearHistory } =
     useClipboardStore();
@@ -245,7 +273,7 @@ const Clipboard: React.FC = () => {
                             WebkitBoxOrient: "vertical",
                           }}
                         >
-                          {item.content}
+                          {renderContentWithLinks(item.content)}
                         </div>
                       )
                     }

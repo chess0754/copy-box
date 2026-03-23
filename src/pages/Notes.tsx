@@ -8,6 +8,34 @@ import {
 } from "@ant-design/icons";
 import { useNoteStore, NoteItem } from "../store/noteStore";
 
+// URL 检测正则
+const URL_REGEX = /(https?:\/\/[^\s<>"{}|\\^`[\]]+)/g;
+
+// 将文本中的 URL 转换为可点击的链接
+const renderContentWithLinks = (content: string) => {
+  const parts = content.split(URL_REGEX);
+  return parts.map((part, index) => {
+    if (URL_REGEX.test(part)) {
+      URL_REGEX.lastIndex = 0;
+      return (
+        <a
+          key={index}
+          href="#"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            window.electronAPI.openExternalUrl(part);
+          }}
+          style={{ color: "#1677ff" }}
+        >
+          {part}
+        </a>
+      );
+    }
+    return part;
+  });
+};
+
 const Notes: React.FC = () => {
   const { notes, addNote, deleteNote } = useNoteStore();
 
@@ -156,7 +184,9 @@ const Notes: React.FC = () => {
                       color: "#666",
                     }}
                   >
-                    {item.content || (
+                    {item.content ? (
+                      renderContentWithLinks(item.content)
+                    ) : (
                       <span style={{ color: "#ccc" }}>无内容...</span>
                     )}
                   </div>
