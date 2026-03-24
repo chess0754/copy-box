@@ -133,10 +133,6 @@ ipcMain.handle("close-window", () => {
   mainWindow?.close();
 });
 
-/**
- * 获取浏览器收藏夹数据
- * 支持 Microsoft Edge、Google Chrome 和 Safari (macOS)
- */
 ipcMain.handle("get-browser-bookmarks", async () => {
   const userInfo = os.userInfo();
   const bookmarks: any[] = [];
@@ -146,20 +142,16 @@ ipcMain.handle("get-browser-bookmarks", async () => {
     const browsers: Array<{ name: string; path: string }> = [];
 
     if (platform === "win32") {
-      // Windows 平台
       browsers.push(
-        { name: "Edge", path: path.join("Microsoft", "Edge") },
-        { name: "Chrome", path: path.join("Google", "Chrome") },
+        { name: "Edge", path: path.join("Microsoft", "Edge", "User Data") },
+        { name: "Chrome", path: path.join("Google", "Chrome", "User Data") },
       );
     } else if (platform === "darwin") {
-      // macOS 平台
       browsers.push(
         { name: "Chrome", path: path.join("Google", "Chrome") },
         { name: "Edge", path: path.join("Microsoft Edge") },
-        { name: "Safari", path: "Safari" },
       );
     } else {
-      // Linux 平台
       browsers.push(
         { name: "Chrome", path: path.join("google-chrome") },
         { name: "Edge", path: path.join("microsoft-edge") },
@@ -168,48 +160,167 @@ ipcMain.handle("get-browser-bookmarks", async () => {
 
     for (const browser of browsers) {
       try {
-        let bookmarksPath: string;
+        let appSupportPath: string;
 
         if (platform === "win32") {
-          bookmarksPath = path.join(
+          appSupportPath = path.join(
             userInfo.homedir,
             "AppData",
             "Local",
-            browser.path,
-            "User Data",
-            "Default",
-            "Bookmarks",
+            browser.path
           );
         } else if (platform === "darwin") {
-          bookmarksPath = path.join(
+          appSupportPath = path.join(
             userInfo.homedir,
             "Library",
             "Application Support",
-            browser.path,
-            "Default",
-            "Bookmarks",
+            browser.path
           );
         } else {
-          bookmarksPath = path.join(
+          appSupportPath = path.join(
             userInfo.homedir,
             ".config",
-            browser.path,
-            "Default",
-            "Bookmarks",
+            browser.path
           );
         }
 
-        if (fs.existsSync(bookmarksPath)) {
-          const data = fs.readFileSync(bookmarksPath, "utf-8");
-          const parsedData = JSON.parse(data);
+        console.log(`Checking path for ${browser.name}: ${appSupportPath}`);
+        
+        if (!fs.existsSync(appSupportPath)) {
+          console.log(`${browser.name} path not found: ${appSupportPath}`);
+          
+          // 尝试备用路径
+          if (browser.name === "Chrome") {
+            const altPath = path.join(userInfo.homedir, "Library", "Application Support", "Google", "Chrome Canary");
+            console.log(`Trying Chrome Canary path: ${altPath}`);
+            if (fs.existsSync(altPath)) {
+              console.log("Found Chrome Canary");
+              appSupportPath = altPath;
+            } else {
+              continue;
+            }
+          } else if (browser.name === "Edge") {
+            const altPath = path.join(userInfo.homedir, "Library", "Application Support", "Microsoft Edge Canary");
+            console.log(`Trying Edge Canary path: ${altPath}`);
+            if (fs.existsSync(altPath)) {
+              console.log("Found Edge Canary");
+              appSupportPath = altPath;
+            } else {
+              continue;
+            }
+          } else {
+            continue;
+          }
+        }
 
-          if (parsedData.roots) {
-            for (const key in parsedData.roots) {
-              const root = parsedData.roots[key];
-              if (root.children) {
+        // 列出所有可用的目录
+        const items = fs.readdirSync(appSupportPath);
+        console.log(`Available items in ${appSupportPath}:`, items);
+        
+        // 查找 profile 目录（可能是 Default、Profile 1 或者直接是书签文件）
+        let bookmarksPath = null;
+        
+        // 先尝试找 Default 目录
+        if (items.includes('Default')) {
+          const testPath = path.join(appSupportPath, 'Default', 'Bookmarks');
+          if (fs.existsSync(testPath)) {
+            bookmarksPath = testPath;
+            console.log(`Found bookmarks at: ${testPath}`);
+          }
+        }
+        
+        // 如果没找到，尝试找 Profile 相关目录
+        if (!bookmarksPath) {
+          const profileDirs = items.filter(item => 
+            item === 'Default' || 
+            item.startsWith('Profile') || 
+            item.toLowerCase().includes('default')
+          );
+          
+          console.log(`Possible profile directories:`, profileDirs);
+          
+          for (const profileDir of profileDirs) {
+            const testPath = path.join(appSupportPath, profileDir, 'Bookmarks');
+            if (fs.existsSync(testPath)) {
+              bookmarksPath = testPath;
+              console.log(`Found bookmarks at: ${testPath}`);
+              break;
+            }
+          }
+        }
+        
+        // 如果还是没找到，检查当前目录是否有书签文件（某些浏览器直接放根目录）
+        if (!bookmarksPath) {
+          const testPath = path.join(appSupportPath, 'Bookmarks');
+          if (fs.existsSync(testPath)) {
+            bookmarksPath = testPath;
+            console.log(`Found bookmarks at root: ${testPath}`);
+          }
+        }
+
+        if (!bookmarksPath) {
+          console.log(`${browser.name} bookmarks file not found`);
+          continue;
+        }
+
+        // 读取并解析书签
+        const data = fs.readFileSync(bookmarksPath, "utf-8");
+        const parsedData = JSON.parse(data);
+
+        if (parsedData.roots) {
+          // 递归提取书签，保留文件夹结构
+          const extractBookmarks = (node: any, results: any[] = []): any[] => {
+            if (!node) return results;
+            
+            // 如果是书签（URL类型）
+            if (node.type === 'url' && node.url) {
+              results.push({
+                name: node.name || '未命名',
+                url: node.url,
+              });
+            }
+            
+            // 如果是文件夹（有 children）
+            if (node.children && Array.isArray(node.children)) {
+              // 如果节点有名称且是文件夹类型，说明这是一个文件夹
+              if (node.name && node.type === 'folder') {
+                const folderChildren: any[] = [];
+                for (const child of node.children) {
+                  extractBookmarks(child, folderChildren);
+                }
+                if (folderChildren.length > 0) {
+                  results.push({
+                    name: node.name,
+                    children: folderChildren,
+                  });
+                }
+              } else {
+                // 根节点直接提取子项
+                for (const child of node.children) {
+                  extractBookmarks(child, results);
+                }
+              }
+            }
+            
+            return results;
+          };
+
+          // 遍历所有根节点（书签栏、其他书签、移动书签等）
+          const rootNames: { [key: string]: string } = {
+            'bookmark_bar': '书签栏',
+            'other': '其他书签',
+            'synced': '移动书签'
+          };
+          
+          for (const key in parsedData.roots) {
+            const root = parsedData.roots[key];
+            if (root && root.children) {
+              const extractedBookmarks = extractBookmarks(root);
+              if (extractedBookmarks.length > 0) {
                 bookmarks.push({
                   name: browser.name,
-                  children: root.children,
+                  folderName: rootNames[key] || key,
+                  children: extractedBookmarks,
                 });
               }
             }
@@ -225,6 +336,7 @@ ipcMain.handle("get-browser-bookmarks", async () => {
 
   return bookmarks;
 });
+
 
 /**
  * 打开外部链接
