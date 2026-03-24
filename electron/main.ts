@@ -55,10 +55,10 @@ ipcMain.handle("create-note-window", (event, noteId: string) => {
   }
 
   const win = new BrowserWindow({
-    width: 400,
-    height: 300,
-    minWidth: 300,
-    minHeight: 200,
+    width: 800,
+    height: 600,
+    minWidth: 800,
+    minHeight: 600,
     // alwaysOnTop: true,
     // webPreferences: {
     //   preload: path.join(__dirname, "preload.js"),
