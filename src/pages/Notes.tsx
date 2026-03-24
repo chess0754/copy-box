@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from "react";
-import { Card, Button, Input, Modal, List, Popconfirm, message } from "antd";
+import React, { useState, useEffect, useMemo } from "react";
+import { Card, Button, Input, Modal, List, Popconfirm, message, Tag, Select } from "antd";
 import {
   PlusOutlined,
   DeleteOutlined,
   CopyOutlined,
   ExportOutlined,
+  SearchOutlined,
+  RobotOutlined,
 } from "@ant-design/icons";
 import { useNoteStore, NoteItem } from "../store/noteStore";
 
@@ -43,19 +45,9 @@ const Notes: React.FC = () => {
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === "note-storage") {
-        // Zustand persist middleware handles hydration, but we might need to force re-render or reload
-        // Actually, zustand's persist middleware with createJSONStorage(() => localStorage)
-        // should automatically listen to storage events if configured correctly or we might need to reload manually.
-        // However, Zustand persist doesn't automatically sync across tabs/windows by default in v4 without extra config or listeners.
-        // Let's rely on useNoteStore.persist.rehydrate() if available or just force a reload of data.
         useNoteStore.persist.rehydrate();
       }
     };
-
-    // Also poll for changes because storage event only fires if change happened in ANOTHER window
-    // But here we want to see changes from the note window.
-    // Since note window is a separate renderer process (webview/window), it shares localStorage (if same domain)
-    // and writing to it there SHOULD fire storage event here.
 
     window.addEventListener("storage", handleStorageChange);
     return () => window.removeEventListener("storage", handleStorageChange);
@@ -64,6 +56,40 @@ const Notes: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [newContent, setNewContent] = useState("");
+  const [newCategory, setNewCategory] = useState("");
+  const [searchText, setSearchText] = useState("");
+  const [filterCategory, setFilterCategory] = useState<string | null>(null);
+
+  // 获取所有分类
+  const categories = useMemo(() => {
+    const cats = new Set<string>();
+    notes.forEach((note) => {
+      if (note.category) {
+        cats.add(note.category);
+      }
+    });
+    return Array.from(cats);
+  }, [notes]);
+
+  // 过滤后的笔记
+  const filteredNotes = useMemo(() => {
+    return notes.filter((note) => {
+      // 分类过滤
+      if (filterCategory && note.category !== filterCategory) {
+        return false;
+      }
+      // 搜索过滤
+      if (searchText) {
+        const search = searchText.toLowerCase();
+        return (
+          note.title.toLowerCase().includes(search) ||
+          note.content.toLowerCase().includes(search) ||
+          note.category?.toLowerCase().includes(search)
+        );
+      }
+      return true;
+    });
+  }, [notes, filterCategory, searchText]);
 
   const handleCreate = () => {
     if (!newTitle.trim()) {
@@ -75,16 +101,19 @@ const Notes: React.FC = () => {
       id,
       title: newTitle,
       content: newContent,
+      type: "prompt",
+      category: newCategory || undefined,
+      version: 1,
       createTime: new Date().toLocaleString(),
       updateTime: new Date().toLocaleString(),
+      history: [],
     };
     addNote(newNote);
     setIsModalOpen(false);
     setNewTitle("");
     setNewContent("");
-    message.success("便签创建成功");
-    // Optional: Auto open window?
-    // window.electronAPI.createNoteWindow(id);
+    setNewCategory("");
+    message.success("提示词创建成功");
   };
 
   const handleOpenWindow = (id: string) => {
@@ -92,9 +121,9 @@ const Notes: React.FC = () => {
   };
 
   const handleDelete = (id: string, e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent card click
+    e.stopPropagation();
     deleteNote(id);
-    message.success("便签已删除");
+    message.success("已删除");
   };
 
   const handleCopy = (content: string, e: React.MouseEvent) => {
@@ -106,36 +135,59 @@ const Notes: React.FC = () => {
   return (
     <div className="content-section">
       <Card
-        title="便签"
+        title="提示词管理"
         extra={
           <Button
             type="primary"
             icon={<PlusOutlined />}
             onClick={() => setIsModalOpen(true)}
           >
-            新建便签
+            新建
           </Button>
         }
         style={{
           marginTop: 8,
           height: "calc(100vh - 200px)",
-          overflow: "auto",
+          overflow: "hidden",
         }}
       >
-        <div
-          style={{ height: "100%", overflowY: "auto", paddingRight: "10px" }}
-        >
+        {/* 搜索和筛选区域 */}
+        <div style={{ marginBottom: 16, display: "flex", gap: 12, flexWrap: "wrap" }}>
+          <Input
+            placeholder="搜索标题、内容或分类..."
+            prefix={<SearchOutlined />}
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+            style={{ width: 250 }}
+            allowClear
+          />
+          <Select
+            placeholder="筛选分类"
+            value={filterCategory}
+            onChange={setFilterCategory}
+            style={{ width: 150 }}
+            allowClear
+            options={categories.map((cat) => ({ value: cat, label: cat }))}
+          />
+        </div>
+
+        <div style={{ height: "calc(100% - 80px)", overflowY: "auto", paddingRight: "10px" }}>
           <List
             grid={{ gutter: 16, xs: 1, sm: 2, md: 3, lg: 4, xl: 4, xxl: 6 }}
-            dataSource={notes}
+            dataSource={filteredNotes}
             renderItem={(item) => (
               <List.Item>
                 <Card
                   hoverable
-                  title={item.title}
+                  title={
+                    <span style={{ display: "flex", alignItems: "center" }}>
+                      <RobotOutlined style={{ color: "#1890ff", marginRight: 4 }} />
+                      {item.title}
+                    </span>
+                  }
                   extra={
                     <Popconfirm
-                      title="确定删除此便签吗?"
+                      title="确定删除吗?"
                       onConfirm={(e) => handleDelete(item.id, e as any)}
                       onCancel={(e) => e?.stopPropagation()}
                       okText="确定"
@@ -173,13 +225,18 @@ const Notes: React.FC = () => {
                     </Button>,
                   ]}
                 >
+                  {item.category && (
+                    <Tag color="blue" style={{ marginBottom: 8 }}>
+                      {item.category}
+                    </Tag>
+                  )}
                   <div
                     style={{
-                      height: "100px",
+                      height: "80px",
                       overflow: "hidden",
                       textOverflow: "ellipsis",
                       display: "-webkit-box",
-                      WebkitLineClamp: 4,
+                      WebkitLineClamp: 3,
                       WebkitBoxOrient: "vertical",
                       color: "#666",
                     }}
@@ -195,9 +252,16 @@ const Notes: React.FC = () => {
                       marginTop: "10px",
                       fontSize: "12px",
                       color: "#999",
+                      display: "flex",
+                      justifyContent: "space-between",
                     }}
                   >
-                    {item.updateTime}
+                    <span>
+                      v{item.version} · {item.updateTime}
+                    </span>
+                    {(item.history?.length || 0) > 0 && (
+                      <Tag color="orange">{item.history?.length || 0} 个历史</Tag>
+                    )}
                   </div>
                 </Card>
               </List.Item>
@@ -207,21 +271,32 @@ const Notes: React.FC = () => {
       </Card>
 
       <Modal
-        title="新建便签"
+        title="新建提示词"
         open={isModalOpen}
         onOk={handleCreate}
         onCancel={() => setIsModalOpen(false)}
+        width={500}
       >
         <div style={{ marginBottom: "16px" }}>
+          <div style={{ marginBottom: 8 }}>标题</div>
           <Input
-            placeholder="标题"
+            placeholder="请输入标题"
             value={newTitle}
             onChange={(e) => setNewTitle(e.target.value)}
           />
         </div>
+        <div style={{ marginBottom: "16px" }}>
+          <div style={{ marginBottom: 8 }}>分类 (可选)</div>
+          <Input
+            placeholder="请输入分类"
+            value={newCategory}
+            onChange={(e) => setNewCategory(e.target.value)}
+          />
+        </div>
         <div>
+          <div style={{ marginBottom: 8 }}>内容</div>
           <Input.TextArea
-            placeholder="内容"
+            placeholder="请输入内容"
             value={newContent}
             onChange={(e) => setNewContent(e.target.value)}
             rows={4}

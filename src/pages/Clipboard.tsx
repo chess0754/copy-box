@@ -16,8 +16,8 @@ import {
   EditOutlined,
   SaveOutlined,
   DeleteOutlined,
-  FormOutlined,
   ClearOutlined,
+  RobotOutlined,
 } from "@ant-design/icons";
 import { useClipboardStore } from "../store/clipboardStore";
 import { useNoteStore } from "../store/noteStore";
@@ -132,10 +132,13 @@ const Clipboard: React.FC = () => {
       id,
       title,
       content,
+      type: "prompt",
+      version: 1,
       createTime: new Date().toLocaleString(),
       updateTime: new Date().toLocaleString(),
+      history: [],
     });
-    message.success("已创建便签");
+    message.success("已创建提示词");
     window.electronAPI.createNoteWindow(id);
   };
 
@@ -202,10 +205,10 @@ const Clipboard: React.FC = () => {
                         {!isImage && (
                           <>
                             <Button
-                              icon={<FormOutlined />}
+                              icon={<RobotOutlined />}
                               onClick={() => handleCreateNote(item.content)}
                               size="small"
-                              title="转为便签"
+                              title="转为提示词"
                             />
                             <Button
                               icon={<EditOutlined />}
