@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Typography, Card, Breadcrumb, Empty, message, Avatar } from "antd";
+import { Typography, Card, Breadcrumb, Empty, message, Avatar, Space } from "antd";
 
 interface BookmarkItem {
   name: string;
@@ -105,96 +105,160 @@ const Apps: React.FC = () => {
    * 生成面包屑项
    */
   const breadcrumbItems = treeList.map((item, index) => ({
-    title: item.name,
-    onClick: () => handleBreadcrumbClick(index),
+    title: (
+      <span
+        style={{
+          color:
+            index === treeList.length - 1
+              ? "var(--color-primary)"
+              : "var(--color-text-secondary)",
+          cursor: "pointer",
+          transition: "color var(--transition-fast)",
+        }}
+        onClick={() => handleBreadcrumbClick(index)}
+      >
+        {item.name}
+      </span>
+    ),
+    key: index,
   }));
 
   return (
     <div className="content-section">
-      <Breadcrumb items={breadcrumbItems} style={{ marginBottom: 16 }} />
+      <Breadcrumb
+        items={breadcrumbItems}
+        style={{ marginBottom: 16 }}
+        separator={<span style={{ color: "var(--color-text-tertiary)" }}>/</span>}
+      />
 
       {loading ? (
         <Card style={{ marginTop: 24 }}>
-          <Typography.Text type="secondary">加载中...</Typography.Text>
+          <div className="skeleton" style={{ height: 100 }} />
         </Card>
       ) : dataList.length > 0 ? (
         <Card
-          title=""
+          title={
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{ fontSize: 18 }}>📁</span>
+              <span>收藏夹</span>
+              <span
+                style={{
+                  fontSize: 12,
+                  color: "var(--color-text-tertiary)",
+                  fontWeight: "normal",
+                }}
+              >
+                ({dataList.length} 项)
+              </span>
+            </div>
+          }
           style={{
             marginTop: 8,
             height: "calc(100vh - 200px)",
-            overflow: "auto",
+            overflow: "hidden",
           }}
+          className="card-hoverable"
         >
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
+              gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
               gap: 16,
               paddingRight: 4,
+              height: "100%",
+              overflowY: "auto",
             }}
           >
             {dataList.map((item, index) => (
               <Card
                 key={index}
                 hoverable
+                className="card-hoverable"
                 style={{
                   height: 100,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   cursor: "pointer",
+                  background: "var(--color-bg-base)",
+                  border: "1px solid var(--color-border)",
+                  borderRadius: "var(--radius-lg)",
+                  transition: "all 0.25s ease",
                 }}
                 onClick={() => {
-                  console.log(item, "item");
                   if (item.children && item.children.length > 0) {
                     handleCardClick(item);
                   } else {
                     handleOpenBrowser(item);
                   }
                 }}
+                bodyStyle={{
+                  width: "100%",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: "var(--space-sm)",
+                }}
               >
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    width: "100%",
-                  }}
+                <Space
+                  direction="vertical"
+                  size={4}
+                  align="center"
+                  style={{ width: "100%" }}
                 >
                   {item.children && item.children.length > 0 ? (
                     <Avatar
-                      size={32}
-                      icon={<span style={{ fontSize: 20 }}>📁</span>}
-                      style={{ marginBottom: 8 }}
-                    />
+                      size={40}
+                      style={{
+                        background: "linear-gradient(135deg, #6366F1, #8B5CF6)",
+                        border: "2px solid var(--color-border)",
+                      }}
+                    >
+                      <span style={{ fontSize: 20 }}>📁</span>
+                    </Avatar>
                   ) : item.url ? (
                     <Avatar
-                      size={32}
+                      size={40}
                       src={getFaviconUrl(item.url)}
-                      style={{ marginBottom: 8 }}
+                      style={{
+                        border: "2px solid var(--color-border)",
+                        background: "var(--color-bg-elevated)",
+                      }}
+                      icon={
+                        <span style={{ fontSize: 16, opacity: 0.5 }}>🔗</span>
+                      }
                     />
                   ) : null}
                   <Typography.Paragraph
                     ellipsis={{ tooltip: item.name, rows: 2 }}
                     style={{
                       textAlign: "center",
-                      lineHeight: "1.5",
+                      lineHeight: 1.4,
                       wordBreak: "break-word",
-                      padding: "0 8px",
+                      padding: "0 4px",
                       margin: 0,
+                      fontSize: 13,
+                      color: "var(--color-text-primary)",
                     }}
                   >
                     {item.name}
                   </Typography.Paragraph>
-                </div>
+                </Space>
               </Card>
             ))}
           </div>
         </Card>
       ) : (
         <Card style={{ marginTop: 24 }}>
-          <Empty description="暂无数据" />
+          <Empty
+            image={Empty.PRESENTED_IMAGE_SIMPLE}
+            description={
+              <span style={{ color: "var(--color-text-tertiary)" }}>
+                暂无收藏夹数据
+              </span>
+            }
+          />
         </Card>
       )}
     </div>

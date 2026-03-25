@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
-import { Input, Button, message, Layout, Space, Drawer, List, Tag, Radio, Empty, Checkbox, Modal } from "antd";
+import { Input, Button, message, Layout, Space, Drawer, List, Tag, Radio, Empty, Checkbox, Modal, Typography } from "antd";
 import {
   CopyOutlined,
   HistoryOutlined,
@@ -8,11 +8,13 @@ import {
   RollbackOutlined,
   RobotOutlined,
   SaveOutlined,
+  ArrowLeftOutlined,
 } from "@ant-design/icons";
 import { useNoteStore, NoteItem, NoteHistory } from "../store/noteStore";
 import DiffViewer from "../components/DiffViewer";
 
 const { TextArea } = Input;
+const { Text } = Typography;
 
 // URL 检测正则
 const URL_REGEX = /(https?:\/\/[^\s<>"{}|\\^`[\]]+)/g;
@@ -31,7 +33,7 @@ const renderContentWithLinks = (content: string) => {
             e.preventDefault();
             window.electronAPI.openExternalUrl(part);
           }}
-          style={{ color: "#1677ff" }}
+          style={{ color: "var(--color-primary)" }}
         >
           {part}
         </a>
@@ -178,7 +180,17 @@ const NoteWindow: React.FC = () => {
   };
 
   if (!note) {
-    return <div style={{ padding: 20 }}>内容不存在或已被删除</div>;
+    return (
+      <div
+        style={{
+          padding: 40,
+          textAlign: "center",
+          color: "var(--color-text-tertiary)",
+        }}
+      >
+        <Empty description="内容不存在或已被删除" />
+      </div>
+    );
   }
 
   // 对比模式视图
@@ -187,7 +199,11 @@ const NoteWindow: React.FC = () => {
     const toVersion = getVersionContent(selectedVersions[1]);
 
     if (!fromVersion || !toVersion) {
-      return <div style={{ padding: 20 }}>版本不存在</div>;
+      return (
+        <div style={{ padding: 20, color: "var(--color-text-tertiary)" }}>
+          版本不存在
+        </div>
+      );
     }
 
     // 排序：早的版本作为旧版本
@@ -198,18 +214,31 @@ const NoteWindow: React.FC = () => {
     const newVersion = sorted[1];
 
     return (
-      <Layout style={{ height: "100vh", background: "#fff" }}>
+      <Layout style={{ height: "100vh", background: "var(--color-bg-base)" }}>
         <Layout.Header
           style={{
-            background: "#fff",
+            background: "var(--color-bg-elevated)",
             padding: "0 16px",
-            borderBottom: "1px solid #f0f0f0",
+            borderBottom: "1px solid var(--color-border)",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
+            height: 56,
           }}
         >
-          <span style={{ fontSize: 16, fontWeight: "bold" }}>差异对比</span>
+          <Space>
+            <Button
+              type="text"
+              icon={<ArrowLeftOutlined />}
+              onClick={() => setCompareMode(false)}
+              style={{ color: "var(--color-text-secondary)" }}
+            >
+              返回
+            </Button>
+            <span style={{ fontSize: 16, fontWeight: "bold", color: "var(--color-text-primary)" }}>
+              差异对比
+            </span>
+          </Space>
           <Space>
             <Radio.Group
               value={diffMode}
@@ -220,12 +249,17 @@ const NoteWindow: React.FC = () => {
               <Radio.Button value="inline">文字差异</Radio.Button>
               <Radio.Button value="split">并排对比</Radio.Button>
             </Radio.Group>
-            <Button onClick={() => setCompareMode(false)}>退出对比</Button>
           </Space>
         </Layout.Header>
         <Layout.Content style={{ padding: 16, overflow: "auto" }}>
           <div style={{ marginBottom: 16 }}>
-            <div style={{ marginBottom: 8, color: "#666" }}>
+            <div
+              style={{
+                marginBottom: 8,
+                color: "var(--color-text-secondary)",
+                fontSize: 13,
+              }}
+            >
               对比: {oldVersion.updateTime} → {newVersion.updateTime}
             </div>
           </div>
@@ -240,10 +274,10 @@ const NoteWindow: React.FC = () => {
   }
 
   return (
-    <Layout style={{ height: "100vh", background: "#fff" }}>
+    <Layout style={{ height: "100vh", background: "var(--color-bg-base)" }}>
       <Layout.Content
         style={{
-          padding: "16px",
+          padding: "var(--space-lg)",
           overflow: "hidden",
           display: "flex",
           flexDirection: "column",
@@ -253,7 +287,15 @@ const NoteWindow: React.FC = () => {
         <div style={{ marginBottom: 12 }}>
           <Space size="middle" style={{ width: "100%", flexWrap: "wrap" }}>
             {/* 类型显示 */}
-            <Tag icon={<RobotOutlined />} color="blue">
+            <Tag
+              icon={<RobotOutlined />}
+              style={{
+                background: "rgba(99, 102, 241, 0.15)",
+                color: "#818CF8",
+                border: "none",
+                borderRadius: "var(--radius-sm)",
+              }}
+            >
               提示词 v{note.version}
             </Tag>
 
@@ -270,6 +312,7 @@ const NoteWindow: React.FC = () => {
               type="text"
               icon={<HistoryOutlined />}
               onClick={() => setHistoryVisible(true)}
+              style={{ color: "var(--color-text-secondary)" }}
             >
               历史 ({note.history?.length || 0})
             </Button>
@@ -279,12 +322,18 @@ const NoteWindow: React.FC = () => {
                 type="primary"
                 icon={<SaveOutlined />}
                 onClick={handleSaveClick}
+                className="btn-press"
               >
                 保存
               </Button>
             )}
 
-            <Button type="text" icon={<CopyOutlined />} onClick={handleCopy}>
+            <Button
+              type="text"
+              icon={<CopyOutlined />}
+              onClick={handleCopy}
+              style={{ color: "var(--color-text-secondary)" }}
+            >
               复制
             </Button>
           </Space>
@@ -297,10 +346,12 @@ const NoteWindow: React.FC = () => {
           bordered={false}
           placeholder="无标题"
           style={{
-            fontSize: "18px",
+            fontSize: "20px",
             fontWeight: "bold",
             padding: 0,
             marginBottom: 8,
+            color: "var(--color-text-primary)",
+            background: "transparent",
           }}
         />
 
@@ -314,6 +365,9 @@ const NoteWindow: React.FC = () => {
             flex: 1,
             fontSize: "14px",
             padding: 0,
+            color: "var(--color-text-primary)",
+            background: "transparent",
+            lineHeight: 1.8,
           }}
           placeholder="在此输入内容..."
         />
@@ -323,16 +377,19 @@ const NoteWindow: React.FC = () => {
           <div
             style={{
               marginTop: 8,
-              padding: 8,
-              background: "#f5f5f5",
-              borderRadius: 4,
+              padding: 12,
+              background: "var(--color-bg-elevated)",
+              borderRadius: "var(--radius-md)",
               maxHeight: "120px",
               overflow: "auto",
               whiteSpace: "pre-wrap",
               wordBreak: "break-all",
+              border: "1px solid var(--color-border)",
             }}
           >
-            {renderContentWithLinks(content)}
+            <Text style={{ color: "var(--color-text-secondary)", fontSize: 13 }}>
+              {renderContentWithLinks(content)}
+            </Text>
           </div>
         )}
 
@@ -340,19 +397,28 @@ const NoteWindow: React.FC = () => {
         <div
           style={{
             textAlign: "right",
-            color: "#999",
+            color: "var(--color-text-tertiary)",
             fontSize: 12,
             marginTop: 8,
           }}
         >
           更新于: {note.updateTime}
-          {hasChanges && <span style={{ color: "#faad14", marginLeft: 8 }}>· 未保存</span>}
+          {hasChanges && (
+            <span style={{ color: "var(--color-warning)", marginLeft: 8 }}>
+              · 未保存
+            </span>
+          )}
         </div>
       </Layout.Content>
 
       {/* 历史记录抽屉 */}
       <Drawer
-        title="历史记录"
+        title={
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <HistoryOutlined style={{ color: "var(--color-primary)" }} />
+            历史记录
+          </div>
+        }
         placement="right"
         width={400}
         open={historyVisible}
@@ -376,7 +442,13 @@ const NoteWindow: React.FC = () => {
           <Empty description="暂无历史记录" />
         ) : (
           <>
-            <div style={{ marginBottom: 16, color: "#666", fontSize: 12 }}>
+            <div
+              style={{
+                marginBottom: 16,
+                color: "var(--color-text-secondary)",
+                fontSize: 12,
+              }}
+            >
               选择两个版本进行对比 (已选 {selectedVersions.length}/2)
             </div>
             <List
@@ -384,31 +456,44 @@ const NoteWindow: React.FC = () => {
               dataSource={allVersions}
               renderItem={(item, index) => (
                 <List.Item
-                  style={{ cursor: "pointer" }}
+                  className="list-item-hover"
+                  style={{
+                    cursor: "pointer",
+                    padding: "var(--space-sm) var(--space-md)",
+                    borderRadius: "var(--radius-md)",
+                    marginBottom: "var(--space-xs)",
+                    border: "1px solid var(--color-border)",
+                    background: "var(--color-bg-base)",
+                  }}
                   onClick={() =>
                     handleVersionSelect(
                       item.id,
                       !selectedVersions.includes(item.id)
                     )
                   }
-                  actions={index > 0 ? [
-                    <Button
-                      key="revert"
-                      type="link"
-                      size="small"
-                      icon={<RollbackOutlined />}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleRevertClick(item.id);
-                      }}
-                    >
-                      回退
-                    </Button>
-                  ] : undefined}
+                  actions={
+                    index > 0
+                      ? [
+                          <Button
+                            key="revert"
+                            type="link"
+                            size="small"
+                            icon={<RollbackOutlined />}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleRevertClick(item.id);
+                            }}
+                            style={{ color: "var(--color-warning)" }}
+                          >
+                            回退
+                          </Button>,
+                        ]
+                      : undefined
+                  }
                 >
                   <div style={{ width: "100%" }}>
                     <div
-                      style={{ display: "flex", justifyContent: "space-between" }}
+                      style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}
                     >
                       <Checkbox
                         checked={selectedVersions.includes(item.id)}
@@ -417,12 +502,20 @@ const NoteWindow: React.FC = () => {
                         }
                       >
                         {index === 0 ? (
-                          <Tag color="green">当前</Tag>
+                          <Tag
+                            style={{
+                              background: "rgba(16, 185, 129, 0.15)",
+                              color: "#34D399",
+                              border: "none",
+                            }}
+                          >
+                            当前
+                          </Tag>
                         ) : (
                           <Tag>历史 {allVersions.length - index}</Tag>
                         )}
                       </Checkbox>
-                      <span style={{ color: "#999", fontSize: 12 }}>
+                      <span style={{ color: "var(--color-text-tertiary)", fontSize: 12 }}>
                         {item.updateTime}
                       </span>
                     </div>
@@ -430,7 +523,7 @@ const NoteWindow: React.FC = () => {
                       style={{
                         marginTop: 4,
                         fontSize: 12,
-                        color: "#666",
+                        color: "var(--color-text-secondary)",
                         overflow: "hidden",
                         textOverflow: "ellipsis",
                         whiteSpace: "nowrap",
@@ -448,7 +541,12 @@ const NoteWindow: React.FC = () => {
 
       {/* 保存确认弹窗 */}
       <Modal
-        title="确认保存"
+        title={
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <SaveOutlined style={{ color: "var(--color-primary)" }} />
+            确认保存
+          </div>
+        }
         open={saveModalVisible}
         onOk={confirmSave}
         onCancel={() => {
@@ -458,13 +556,32 @@ const NoteWindow: React.FC = () => {
         okText="保存"
         cancelText="取消"
       >
-        <p>确定要保存以下修改吗？</p>
+        <p style={{ color: "var(--color-text-secondary)" }}>确定要保存以下修改吗？</p>
         {pendingContent && (
-          <div style={{ background: "#f5f5f5", padding: 12, borderRadius: 4 }}>
-            <div><strong>标题：</strong>{pendingContent.title || "(无)"}</div>
+          <div
+            style={{
+              background: "var(--color-bg-base)",
+              padding: 12,
+              borderRadius: "var(--radius-md)",
+              border: "1px solid var(--color-border)",
+            }}
+          >
+            <div>
+              <strong style={{ color: "var(--color-text-primary)" }}>标题：</strong>
+              <span style={{ color: "var(--color-text-secondary)" }}>
+                {pendingContent.title || "(无)"}
+              </span>
+            </div>
             <div style={{ marginTop: 8 }}>
-              <strong>内容：</strong>
-              <div style={{ maxHeight: 100, overflow: "auto", marginTop: 4 }}>
+              <strong style={{ color: "var(--color-text-primary)" }}>内容：</strong>
+              <div
+                style={{
+                  maxHeight: 100,
+                  overflow: "auto",
+                  marginTop: 4,
+                  color: "var(--color-text-secondary)",
+                }}
+              >
                 {pendingContent.content || "(无)"}
               </div>
             </div>
@@ -474,7 +591,12 @@ const NoteWindow: React.FC = () => {
 
       {/* 回退确认弹窗 */}
       <Modal
-        title="确认回退"
+        title={
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <RollbackOutlined style={{ color: "var(--color-warning)" }} />
+            确认回退
+          </div>
+        }
         open={revertModalVisible}
         onOk={confirmRevert}
         onCancel={() => {
@@ -484,8 +606,8 @@ const NoteWindow: React.FC = () => {
         okText="确认回退"
         cancelText="取消"
       >
-        <p>确定要回退到此版本吗？</p>
-        <p style={{ color: "#666", fontSize: 12 }}>
+        <p style={{ color: "var(--color-text-secondary)" }}>确定要回退到此版本吗？</p>
+        <p style={{ color: "var(--color-text-tertiary)", fontSize: 12 }}>
           回退后当前内容将被保存到历史记录中
         </p>
       </Modal>

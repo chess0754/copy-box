@@ -20,11 +20,11 @@ const DiffViewer: React.FC<DiffViewerProps> = ({
   const inlineView = (
     <div
       style={{
-        background: "#fff",
-        border: "1px solid #d9d9d9",
-        borderRadius: 6,
+        background: "var(--color-bg-base)",
+        border: "1px solid var(--color-border)",
+        borderRadius: "var(--radius-md)",
         padding: 12,
-        fontFamily: "monospace",
+        fontFamily: "var(--font-mono)",
         fontSize: 13,
         whiteSpace: "pre-wrap",
         wordBreak: "break-all",
@@ -34,15 +34,15 @@ const DiffViewer: React.FC<DiffViewerProps> = ({
     >
       {diffResult.map((part, index) => {
         const color = part.added
-          ? "#e6ffec"
+          ? "rgba(16, 185, 129, 0.15)"
           : part.removed
-          ? "#ffebe9"
+          ? "rgba(239, 68, 68, 0.15)"
           : "transparent";
         const textColor = part.added
-          ? "#1a7f37"
+          ? "#34D399"
           : part.removed
-          ? "#cf222e"
-          : "inherit";
+          ? "#F87171"
+          : "var(--color-text-primary)";
         return (
           <span
             key={index}
@@ -67,16 +67,24 @@ const DiffViewer: React.FC<DiffViewerProps> = ({
         <div
           style={{
             flex: 1,
-            border: "1px solid #d9d9d9",
-            borderRadius: 6,
+            background: "var(--color-bg-base)",
+            border: "1px solid var(--color-border)",
+            borderRadius: "var(--radius-md)",
             padding: 12,
-            fontFamily: "monospace",
+            fontFamily: "var(--font-mono)",
             fontSize: 13,
             maxHeight: 400,
             overflow: "auto",
           }}
         >
-          <div style={{ fontWeight: "bold", marginBottom: 8, color: "#cf222e" }}>
+          <div
+            style={{
+              fontWeight: "bold",
+              marginBottom: 8,
+              color: "var(--color-error)",
+              fontSize: 12,
+            }}
+          >
             旧版本
           </div>
           {diffWords.map((part, index) => {
@@ -85,8 +93,12 @@ const DiffViewer: React.FC<DiffViewerProps> = ({
               <span
                 key={index}
                 style={{
-                  backgroundColor: part.removed ? "#ffebe9" : "transparent",
-                  color: part.removed ? "#cf222e" : "inherit",
+                  backgroundColor: part.removed
+                    ? "rgba(239, 68, 68, 0.15)"
+                    : "transparent",
+                  color: part.removed
+                    ? "#F87171"
+                    : "var(--color-text-primary)",
                 }}
               >
                 {part.value}
@@ -97,16 +109,24 @@ const DiffViewer: React.FC<DiffViewerProps> = ({
         <div
           style={{
             flex: 1,
-            border: "1px solid #d9d9d9",
-            borderRadius: 6,
+            background: "var(--color-bg-base)",
+            border: "1px solid var(--color-border)",
+            borderRadius: "var(--radius-md)",
             padding: 12,
-            fontFamily: "monospace",
+            fontFamily: "var(--font-mono)",
             fontSize: 13,
             maxHeight: 400,
             overflow: "auto",
           }}
         >
-          <div style={{ fontWeight: "bold", marginBottom: 8, color: "#1a7f37" }}>
+          <div
+            style={{
+              fontWeight: "bold",
+              marginBottom: 8,
+              color: "var(--color-success)",
+              fontSize: 12,
+            }}
+          >
             新版本
           </div>
           {diffWords.map((part, index) => {
@@ -115,8 +135,12 @@ const DiffViewer: React.FC<DiffViewerProps> = ({
               <span
                 key={index}
                 style={{
-                  backgroundColor: part.added ? "#e6ffec" : "transparent",
-                  color: part.added ? "#1a7f37" : "inherit",
+                  backgroundColor: part.added
+                    ? "rgba(16, 185, 129, 0.15)"
+                    : "transparent",
+                  color: part.added
+                    ? "#34D399"
+                    : "var(--color-text-primary)",
                 }}
               >
                 {part.value}

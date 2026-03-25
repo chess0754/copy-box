@@ -10,6 +10,7 @@ import {
   FormOutlined,
 } from "@ant-design/icons";
 import { useNavigate, useLocation } from "react-router-dom";
+import "../App.css";
 
 const { Content, Header } = Layout;
 
@@ -33,12 +34,12 @@ const AppLayout: React.FC = () => {
     {
       key: "/notes",
       icon: <FormOutlined />,
-      label: "便签",
+      label: "提示词",
     },
     {
       key: "/apps",
       icon: <AppstoreOutlined />,
-      label: "应用",
+      label: "收藏夹",
     },
   ];
 
@@ -49,64 +50,100 @@ const AppLayout: React.FC = () => {
     location.pathname === "/" ? "/clipboard" : location.pathname;
 
   return (
-    <Layout style={{ height: "100vh" }}>
+    <Layout style={{ height: "100vh", background: "var(--color-bg-base)" }}>
       <Header
         style={{
           display: "flex",
           alignItems: "center",
           padding: "0 24px",
-          background: "#fff",
-          borderBottom: "1px solid #f0f0f0",
+          background: "var(--color-bg-base)",
+          borderBottom: "1px solid var(--color-border)",
           height: 64,
-          boxShadow: "0 2px 8px #f0f1f2",
+          position: "relative",
           zIndex: 1,
         }}
       >
+        {/* 顶部渐变装饰条 */}
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            height: "3px",
+            background: "linear-gradient(90deg, #6366F1, #8B5CF6, #EC4899)",
+            opacity: 0.8,
+          }}
+        />
+
         <div
           className="logo"
           style={{
             fontSize: "20px",
             fontWeight: "bold",
             marginRight: "40px",
-            color: "#1677ff",
             display: "flex",
             alignItems: "center",
             gap: "8px",
           }}
         >
-          <span role="img" aria-label="logo" style={{ fontSize: "24px" }}>
-            ✨
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: "36px",
+              height: "36px",
+              background: "linear-gradient(135deg, #6366F1, #8B5CF6)",
+              borderRadius: "var(--radius-md)",
+              fontSize: "18px",
+              boxShadow: "0 0 20px rgba(99, 102, 241, 0.3)",
+            }}
+          >
+            📋
+          </div>
+          <span
+            style={{
+              background: "linear-gradient(135deg, #F1F5F9 0%, #6366F1 100%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
+            }}
+          >
+            Copy Box
           </span>
-          Magic React
         </div>
         <Menu
           mode="horizontal"
           selectedKeys={[selectedKey]}
           items={menuItems}
           onClick={({ key }) => navigate(key)}
+          className="app-menu"
           style={{
             flex: 1,
             minWidth: 0,
             borderBottom: "none",
             fontSize: "16px",
+            background: "transparent",
           }}
         />
       </Header>
       <Content
         style={{
-          padding: "24px",
+          padding: "var(--space-lg)",
           overflow: "auto",
-          height: "calc(100vh - 200px)",
-          background: "#f5f5f5",
+          height: "calc(100vh - 64px)",
+          background: "var(--color-bg-base)",
         }}
       >
         <div
           style={{
-            background: "#fff",
-            padding: 24,
+            background: "var(--color-bg-card)",
+            padding: "var(--space-lg)",
             minHeight: "100%",
-            borderRadius: 8,
-            boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.03)",
+            borderRadius: "var(--radius-lg)",
+            border: "1px solid var(--color-border)",
+            boxShadow: "var(--shadow-card)",
           }}
         >
           <Outlet />
