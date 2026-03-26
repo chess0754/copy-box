@@ -123,7 +123,7 @@ export const useApiStore = create<ApiState>()(
               body = {
                 model: config.model,
                 messages: [{ role: "user", content: "test" }],
-                max_tokens: 5,
+                max_tokens: 10,
               };
               break;
 
@@ -133,18 +133,18 @@ export const useApiStore = create<ApiState>()(
               headers["anthropic-version"] = "2023-06-01";
               body = {
                 model: config.model,
-                max_tokens: 5,
+                max_tokens: 10,
                 messages: [{ role: "user", content: "test" }],
               };
               break;
 
             case "azure":
+              // Azure 不需要在 body 中指定 model
               url = `${config.baseUrl.replace(/\/$/, "")}/openai/deployments/${config.azureDeployment}/chat/completions?api-version=${config.azureApiVersion || "2024-02-15-preview"}`;
               headers["api-key"] = config.apiKey;
               body = {
-                model: config.model,
                 messages: [{ role: "user", content: "test" }],
-                max_tokens: 5,
+                max_tokens: 10,
               };
               break;
 
@@ -163,7 +163,7 @@ export const useApiStore = create<ApiState>()(
               body = {
                 model: config.model,
                 messages: [{ role: "user", content: "test" }],
-                max_tokens: 5,
+                max_tokens: 10,
               };
               break;
           }

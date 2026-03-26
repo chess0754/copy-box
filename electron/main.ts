@@ -370,10 +370,10 @@ ipcMain.handle("fetch-api", async (event, options: { url: string; method?: strin
     const response = await fetch(url, {
       method,
       headers: {
-        "Content-Type": "application/json",
         ...headers,
+        "Content-Type": headers["Content-Type"] || "application/json",
       },
-      body: body ? JSON.stringify(body) : undefined,
+      body: body || undefined,
     });
 
     let data;
