@@ -3,11 +3,15 @@ import Clipboard from "../pages/Clipboard";
 import Apps from "../pages/Apps";
 import Notes from "../pages/Notes";
 import NoteWindow from "../pages/NoteWindow";
+import Skills from "../pages/Skills";
+import Apis from "../pages/Apis";
 import { Layout, Menu } from "antd";
 import {
   AppstoreOutlined,
   CopyOutlined,
   FormOutlined,
+  ThunderboltOutlined,
+  ApiOutlined,
 } from "@ant-design/icons";
 import { useNavigate, useLocation } from "react-router-dom";
 import "../App.css";
@@ -35,6 +39,16 @@ const AppLayout: React.FC = () => {
       key: "/notes",
       icon: <FormOutlined />,
       label: "提示词",
+    },
+    {
+      key: "/skills",
+      icon: <ThunderboltOutlined />,
+      label: "技能",
+    },
+    {
+      key: "/apis",
+      icon: <ApiOutlined />,
+      label: "API",
     },
     {
       key: "/apps",
@@ -173,6 +187,14 @@ export const router = createHashRouter([
       {
         path: "notes",
         element: <Notes />,
+      },
+      {
+        path: "skills",
+        element: <Skills />,
+      },
+      {
+        path: "apis",
+        element: <Apis />,
       },
       {
         path: "apps",

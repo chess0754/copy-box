@@ -3,6 +3,15 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 
 export type NoteType = 'prompt';
 
+// 变量定义
+export interface PromptVariable {
+  name: string;
+  defaultValue?: string;
+  description?: string;
+  required: boolean;
+}
+
+// 历史记录
 export interface NoteHistory {
   id: string;
   content: string;
@@ -15,10 +24,21 @@ export interface NoteItem {
   title: string;
   content: string;
   type: NoteType;
+  // 分类
   category?: string;
+  // 标签
+  tags: string[];
+  // 变量列表
+  variables: PromptVariable[];
+  // 使用次数
+  usageCount: number;
+  // 版本号
   version: number;
+  // 创建时间
   createTime: string;
+  // 更新时间
   updateTime: string;
+  // 历史记录
   history: NoteHistory[];
 }
 
@@ -29,6 +49,7 @@ interface NoteState {
   deleteNote: (id: string) => void;
   getNoteById: (id: string) => NoteItem | undefined;
   revertToVersion: (id: string, historyId: string) => void;
+  incrementUsageCount: (id: string) => void;
 }
 
 export const useNoteStore = create<NoteState>()(
@@ -81,6 +102,14 @@ export const useNoteStore = create<NoteState>()(
           notes: state.notes.filter((note) => note.id !== id),
         })),
       getNoteById: (id) => get().notes.find((n) => n.id === id),
+      incrementUsageCount: (id) =>
+        set((state) => ({
+          notes: state.notes.map((note) =>
+            note.id === id
+              ? { ...note, usageCount: (note.usageCount || 0) + 1 }
+              : note
+          ),
+        })),
       revertToVersion: (id, historyId) => set((state) => {
         const note = state.notes.find((n) => n.id === id);
         if (!note) return state;

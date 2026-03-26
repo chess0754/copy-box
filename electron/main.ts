@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, shell } from "electron";
+import { app, BrowserWindow, ipcMain, shell, session } from "electron";
 import * as path from "path";
 import * as os from "os";
 import * as fs from "fs";
@@ -91,6 +91,18 @@ ipcMain.handle("create-note-window", (event, noteId: string) => {
 
 // App event listeners
 app.whenReady().then(() => {
+  // 配置 CORS 允许所有 origin（开发时使用）
+  session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+    callback({
+      responseHeaders: {
+        ...details.responseHeaders,
+        "Access-Control-Allow-Origin": ["*"],
+        "Access-Control-Allow-Methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        "Access-Control-Allow-Headers": ["*"],
+      },
+    });
+  });
+
   createWindow();
 
   app.on("activate", () => {
@@ -347,5 +359,41 @@ ipcMain.handle("open-external-url", async (event, url: string) => {
   } catch (error) {
     console.error("Failed to open external URL:", error);
     throw error;
+  }
+});
+
+// API 请求代理（绕过 CORS）
+ipcMain.handle("fetch-api", async (event, options: { url: string; method?: string; headers?: Record<string, string>; body?: string }) => {
+  try {
+    const { url, method = "POST", headers = {}, body } = options;
+
+    const response = await fetch(url, {
+      method,
+      headers: {
+        "Content-Type": "application/json",
+        ...headers,
+      },
+      body: body ? JSON.stringify(body) : undefined,
+    });
+
+    let data;
+    const contentType = response.headers.get("content-type");
+    if (contentType && contentType.includes("application/json")) {
+      data = await response.json();
+    } else {
+      data = await response.text();
+    }
+
+    return {
+      ok: response.ok,
+      status: response.status,
+      data,
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      status: 0,
+      error: error instanceof Error ? error.message : "请求失败",
+    };
   }
 });
