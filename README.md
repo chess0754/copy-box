@@ -1,6 +1,6 @@
-# Magic React - Electron + React + TypeScript + Ant Design
+# Prompt Box
 
-一个现代化的桌面应用程序模板，基于 Electron、React、TypeScript 和 Ant Design 构建。
+提示词管理工具，基于 Electron、React、TypeScript 和 Ant Design 构建。
 
 ## 技术栈
 
@@ -13,7 +13,7 @@
 ## 项目结构
 
 ```
-magic-react/
+prompt-box/
 ├── electron/              # Electron 主进程和预加载脚本
 │   ├── main.ts           # 主进程入口
 │   └── preload.ts        # 预加载脚本（IPC 桥接）

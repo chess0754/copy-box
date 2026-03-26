@@ -1,7 +1,7 @@
 {
-  "name": "magic-react",
+  "name": "prompt-box",
   "version": "1.1.0",
-  "description": "Electron + React + TypeScript + Ant Design Desktop Application",
+  "description": "Prompt Box - 提示词管理工具",
   "main": "dist-electron/main.js",
   "scripts": {
     "dev": "vite",
@@ -39,8 +39,8 @@
     "wait-on": "^7.2.0"
   },
   "build": {
-    "appId": "com.magicreact.app",
-    "productName": "Magic React",
+    "appId": "com.promptbox.app",
+    "productName": "Prompt Box",
     "directories": {
       "output": "release"
     },
