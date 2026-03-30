@@ -3,8 +3,25 @@ import { persist, createJSONStorage } from "zustand/middleware";
 
 /**
  * API Provider 类型
+ * 支持国内外主流AI厂商
  */
-export type ApiProvider = "openai" | "anthropic" | "azure" | "ollama" | "custom";
+export type ApiProvider = 
+  | "openai" 
+  | "anthropic" 
+  | "azure" 
+  | "ollama" 
+  | "alibaba" 
+  | "baidu" 
+  | "zhipu" 
+  | "xunfei" 
+  | "moonshot" 
+  | "baichuan" 
+  | "minimax" 
+  | "deepseek" 
+  | "doubao" 
+  | "tencent"
+  | "siliconflow"
+  | "custom";
 
 /**
  * API 测试结果
@@ -139,7 +156,6 @@ export const useApiStore = create<ApiState>()(
               break;
 
             case "azure":
-              // Azure 不需要在 body 中指定 model
               url = `${config.baseUrl.replace(/\/$/, "")}/openai/deployments/${config.azureDeployment}/chat/completions?api-version=${config.azureApiVersion || "2024-02-15-preview"}`;
               headers["api-key"] = config.apiKey;
               body = {
@@ -157,7 +173,117 @@ export const useApiStore = create<ApiState>()(
               };
               break;
 
+            case "alibaba":
+              url = `${config.baseUrl.replace(/\/$/, "")}/services/aigc/text-generation/generation`;
+              headers["Authorization"] = `Bearer ${config.apiKey}`;
+              body = {
+                model: config.model,
+                input: { messages: [{ role: "user", content: "test" }] },
+                parameters: { max_tokens: 10 },
+              };
+              break;
+
+            case "baidu":
+              url = `${config.baseUrl.replace(/\/$/, "")}/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/${config.model}`;
+              headers["Content-Type"] = "application/json";
+              body = {
+                messages: [{ role: "user", content: "test" }],
+                max_output_tokens: 10,
+              };
+              break;
+
+            case "zhipu":
+              url = `${config.baseUrl.replace(/\/$/, "")}/api/paas/v4/chat/completions`;
+              headers["Authorization"] = `Bearer ${config.apiKey}`;
+              body = {
+                model: config.model,
+                messages: [{ role: "user", content: "test" }],
+                max_tokens: 10,
+              };
+              break;
+
+            case "xunfei":
+              url = `${config.baseUrl.replace(/\/$/, "")}/v3.5/chat`;
+              headers["Authorization"] = `Bearer ${config.apiKey}`;
+              body = {
+                model: config.model,
+                messages: [{ role: "user", content: "test" }],
+                max_tokens: 10,
+              };
+              break;
+
+            case "moonshot":
+              url = `${config.baseUrl.replace(/\/$/, "")}/v1/chat/completions`;
+              headers["Authorization"] = `Bearer ${config.apiKey}`;
+              body = {
+                model: config.model,
+                messages: [{ role: "user", content: "test" }],
+                max_tokens: 10,
+              };
+              break;
+
+            case "baichuan":
+              url = `${config.baseUrl.replace(/\/$/, "")}/v1/chat/completions`;
+              headers["Authorization"] = `Bearer ${config.apiKey}`;
+              body = {
+                model: config.model,
+                messages: [{ role: "user", content: "test" }],
+                max_tokens: 10,
+              };
+              break;
+
+            case "minimax":
+              url = `${config.baseUrl.replace(/\/$/, "")}/v1/chat/completions`;
+              headers["Authorization"] = `Bearer ${config.apiKey}`;
+              body = {
+                model: config.model,
+                messages: [{ role: "user", content: "test" }],
+                max_tokens: 10,
+              };
+              break;
+
+            case "deepseek":
+              url = `${config.baseUrl.replace(/\/$/, "")}/chat/completions`;
+              headers["Authorization"] = `Bearer ${config.apiKey}`;
+              body = {
+                model: config.model,
+                messages: [{ role: "user", content: "test" }],
+                max_tokens: 10,
+              };
+              break;
+
+            case "doubao":
+              url = `${config.baseUrl.replace(/\/$/, "")}/v3/chat/completions`;
+              headers["Authorization"] = `Bearer ${config.apiKey}`;
+              body = {
+                model: config.model,
+                messages: [{ role: "user", content: "test" }],
+                max_tokens: 10,
+              };
+              break;
+
+            case "tencent":
+              url = `${config.baseUrl.replace(/\/$/, "")}/v1/chat/completions`;
+              headers["Authorization"] = `Bearer ${config.apiKey}`;
+              body = {
+                model: config.model,
+                messages: [{ role: "user", content: "test" }],
+                max_tokens: 10,
+              };
+              break;
+
+            case "siliconflow":
+              url = `${config.baseUrl.replace(/\/$/, "")}/v1/chat/completions`;
+              headers["Authorization"] = `Bearer ${config.apiKey}`;
+              body = {
+                model: config.model,
+                messages: [{ role: "user", content: "test" }],
+                max_tokens: 10,
+              };
+              break;
+
             case "custom":
+            default:
               url = `${config.baseUrl.replace(/\/$/, "")}`;
               headers["Authorization"] = `Bearer ${config.apiKey}`;
               body = {

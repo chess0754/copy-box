@@ -362,6 +362,372 @@ ipcMain.handle("open-external-url", async (event, url: string) => {
   }
 });
 
+// AI Chat 流式响应
+ipcMain.handle("ai-chat-stream", async (event, options: {
+  config: {
+    provider: string;
+    apiKey: string;
+    baseUrl: string;
+    model: string;
+    azureDeployment?: string;
+    azureApiVersion?: string;
+  };
+  messages: Array<{ role: string; content: string }>;
+  systemPrompt?: string;
+}) => {
+  const { config, messages, systemPrompt } = options;
+  
+  try {
+    let url: string;
+    let headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+    let body: any;
+    
+    const formattedMessages: Array<{ role: string; content: string }> = [];
+    
+    if (systemPrompt) {
+      formattedMessages.push({ role: "system", content: systemPrompt });
+    }
+    
+    formattedMessages.push(...messages);
+    
+    switch (config.provider) {
+      case "openai": {
+        url = `${config.baseUrl.replace(/\/$/, "")}/v1/chat/completions`;
+        headers["Authorization"] = `Bearer ${config.apiKey}`;
+        body = {
+          model: config.model,
+          messages: formattedMessages,
+          stream: true,
+          temperature: 0.7,
+        };
+        break;
+      }
+      
+      case "anthropic": {
+        url = `${config.baseUrl.replace(/\/$/, "")}/v1/messages`;
+        headers["x-api-key"] = config.apiKey;
+        headers["anthropic-version"] = "2023-06-01";
+        const systemMsg = formattedMessages.find(m => m.role === "system");
+        const otherMsgs = formattedMessages.filter(m => m.role !== "system");
+        body = {
+          model: config.model,
+          max_tokens: 4096,
+          messages: otherMsgs.map(m => ({
+            role: m.role === "assistant" ? "assistant" : "user",
+            content: m.content
+          })),
+          system: systemMsg?.content,
+          stream: true,
+        };
+        break;
+      }
+      
+      case "azure": {
+        url = `${config.baseUrl.replace(/\/$/, "")}/openai/deployments/${config.azureDeployment}/chat/completions?api-version=${config.azureApiVersion || "2024-02-15-preview"}`;
+        headers["api-key"] = config.apiKey;
+        body = {
+          messages: formattedMessages,
+          stream: true,
+          temperature: 0.7,
+        };
+        break;
+      }
+      
+      case "ollama": {
+        url = `${config.baseUrl.replace(/\/$/, "")}/api/chat`;
+        body = {
+          model: config.model,
+          messages: formattedMessages,
+          stream: true,
+        };
+        break;
+      }
+      
+      case "alibaba": {
+        url = `${config.baseUrl.replace(/\/$/, "")}/api/v1/services/aigc/text-generation/generation`;
+        headers["Authorization"] = `Bearer ${config.apiKey}`;
+        const alibabaSystemMsg = formattedMessages.find(m => m.role === "system");
+        const alibabaOtherMsgs = formattedMessages.filter(m => m.role !== "system");
+        body = {
+          model: config.model,
+          input: {
+            messages: alibabaOtherMsgs
+          },
+          parameters: {
+            temperature: 0.7,
+            incremental_output: true
+          },
+          system: alibabaSystemMsg?.content
+        };
+        break;
+      }
+      
+      case "baidu": {
+        url = `${config.baseUrl.replace(/\/$/, "")}/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/${config.model}?access_token=${config.apiKey}`;
+        body = {
+          messages: formattedMessages,
+          stream: true,
+          temperature: 0.7,
+        };
+        break;
+      }
+      
+      case "zhipu": {
+        url = `${config.baseUrl.replace(/\/$/, "")}/api/paas/v4/chat/completions`;
+        headers["Authorization"] = `Bearer ${config.apiKey}`;
+        body = {
+          model: config.model,
+          messages: formattedMessages,
+          stream: true,
+          temperature: 0.7,
+        };
+        break;
+      }
+      
+      case "xunfei": {
+        url = `${config.baseUrl.replace(/\/$/, "")}/v3.5/chat`;
+        headers["Authorization"] = `Bearer ${config.apiKey}`;
+        body = {
+          model: config.model,
+          messages: formattedMessages,
+          stream: true,
+          temperature: 0.7,
+        };
+        break;
+      }
+      
+      case "moonshot": {
+        url = `${config.baseUrl.replace(/\/$/, "")}/v1/chat/completions`;
+        headers["Authorization"] = `Bearer ${config.apiKey}`;
+        body = {
+          model: config.model,
+          messages: formattedMessages,
+          stream: true,
+          temperature: 0.7,
+        };
+        break;
+      }
+      
+      case "baichuan": {
+        url = `${config.baseUrl.replace(/\/$/, "")}/v1/chat/completions`;
+        headers["Authorization"] = `Bearer ${config.apiKey}`;
+        body = {
+          model: config.model,
+          messages: formattedMessages,
+          stream: true,
+          temperature: 0.7,
+        };
+        break;
+      }
+      
+      case "minimax": {
+        url = `${config.baseUrl.replace(/\/$/, "")}/v1/chat/completions`;
+        headers["Authorization"] = `Bearer ${config.apiKey}`;
+        body = {
+          model: config.model,
+          messages: formattedMessages,
+          stream: true,
+          temperature: 0.7,
+        };
+        break;
+      }
+      
+      case "deepseek": {
+        url = `${config.baseUrl.replace(/\/$/, "")}/chat/completions`;
+        headers["Authorization"] = `Bearer ${config.apiKey}`;
+        body = {
+          model: config.model,
+          messages: formattedMessages,
+          stream: true,
+          temperature: 0.7,
+        };
+        break;
+      }
+      
+      case "doubao": {
+        url = `${config.baseUrl.replace(/\/$/, "")}/api/v3/chat/completions`;
+        headers["Authorization"] = `Bearer ${config.apiKey}`;
+        body = {
+          model: config.model,
+          messages: formattedMessages,
+          stream: true,
+          temperature: 0.7,
+        };
+        break;
+      }
+      
+      case "tencent": {
+        url = `${config.baseUrl.replace(/\/$/, "")}/v1/chat/completions`;
+        headers["Authorization"] = `Bearer ${config.apiKey}`;
+        body = {
+          model: config.model,
+          messages: formattedMessages,
+          stream: true,
+          temperature: 0.7,
+        };
+        break;
+      }
+      
+      case "siliconflow": {
+        url = `${config.baseUrl.replace(/\/$/, "")}/v1/chat/completions`;
+        headers["Authorization"] = `Bearer ${config.apiKey}`;
+        body = {
+          model: config.model,
+          messages: formattedMessages,
+          stream: true,
+          temperature: 0.7,
+        };
+        break;
+      }
+      
+      case "custom":
+      default: {
+        url = `${config.baseUrl.replace(/\/$/, "")}/v1/chat/completions`;
+        headers["Authorization"] = `Bearer ${config.apiKey}`;
+        body = {
+          model: config.model,
+          messages: formattedMessages,
+          stream: true,
+          temperature: 0.7,
+        };
+        break;
+      }
+    }
+    
+    const response = await fetch(url, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(body),
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`API 请求失败: ${response.status} - ${errorText}`);
+    }
+    
+    const reader = response.body?.getReader();
+    if (!reader) {
+      throw new Error("无法获取响应流");
+    }
+    
+    const decoder = new TextDecoder();
+    let fullContent = "";
+    
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      
+      const chunk = decoder.decode(value, { stream: true });
+      const lines = chunk.split("\n").filter(line => line.trim() !== "");
+      
+      for (const line of lines) {
+        if (config.provider === "anthropic") {
+          if (line.startsWith("data: ")) {
+            const data = line.slice(6);
+            if (data === "[DONE]") continue;
+            try {
+              const parsed = JSON.parse(data);
+              if (parsed.type === "content_block_delta" && parsed.delta?.type === "text_delta" && parsed.delta?.text) {
+                const content = parsed.delta.text;
+                fullContent += content;
+                event.sender.send("ai-chat-chunk", { content, done: false });
+              } else if (parsed.type === "message_stop") {
+                // 消息结束
+              }
+            } catch (e) {
+              // 忽略解析错误
+            }
+          } else if (line.startsWith("event: ")) {
+            // 处理事件类型行，忽略
+          }
+        } else if (config.provider === "ollama") {
+          try {
+            const parsed = JSON.parse(line);
+            if (parsed.message?.content) {
+              const content = parsed.message.content;
+              fullContent += content;
+              event.sender.send("ai-chat-chunk", { content, done: false });
+            }
+          } catch (e) {
+            // 忽略解析错误
+          }
+        } else if (config.provider === "alibaba") {
+          try {
+            const parsed = JSON.parse(line);
+            if (parsed.output?.text) {
+              const content = parsed.output.text;
+              fullContent = content;
+              event.sender.send("ai-chat-chunk", { content: parsed.output.text, done: false });
+            }
+          } catch (e) {
+            // 忽略解析错误
+          }
+        } else if (config.provider === "baidu") {
+          if (line.startsWith("data: ")) {
+            const data = line.slice(6);
+            try {
+              const parsed = JSON.parse(data);
+              if (parsed.result) {
+                fullContent += parsed.result;
+                event.sender.send("ai-chat-chunk", { content: parsed.result, done: false });
+              }
+            } catch (e) {
+              // 忽略解析错误
+            }
+          }
+        } else if (config.provider === "xunfei") {
+          try {
+            const parsed = JSON.parse(line);
+            if (parsed.choices?.[0]?.delta?.content) {
+              const content = parsed.choices[0].delta.content;
+              fullContent += content;
+              event.sender.send("ai-chat-chunk", { content, done: false });
+            }
+          } catch (e) {
+            // 忽略解析错误
+          }
+        } else {
+          // OpenAI 兼容格式 (zhipu, moonshot, baichuan, minimax, deepseek, doubao, tencent, siliconflow, custom)
+          if (line.startsWith("data: ")) {
+            const data = line.slice(6);
+            if (data === "[DONE]") continue;
+            try {
+              const parsed = JSON.parse(data);
+              const content = parsed.choices?.[0]?.delta?.content;
+              if (content) {
+                fullContent += content;
+                event.sender.send("ai-chat-chunk", { content, done: false });
+              }
+            } catch (e) {
+              // 忽略解析错误
+            }
+          }
+        }
+      }
+    }
+    
+    event.sender.send("ai-chat-chunk", { content: "", done: true });
+    return { success: true, content: fullContent };
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    event.sender.send("ai-chat-chunk", { error: errorMessage, done: true });
+    return { success: false, error: errorMessage };
+  }
+});
+
+// 停止 AI Chat
+let currentChatAbortController: AbortController | null = null;
+
+ipcMain.handle("ai-chat-stop", () => {
+  if (currentChatAbortController) {
+    currentChatAbortController.abort();
+    currentChatAbortController = null;
+  }
+  return { success: true };
+});
+
 // API 请求代理（绕过 CORS）
 ipcMain.handle("fetch-api", async (event, options: { url: string; method?: string; headers?: Record<string, string>; body?: string }) => {
   try {

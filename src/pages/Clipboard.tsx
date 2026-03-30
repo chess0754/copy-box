@@ -188,10 +188,17 @@ const Clipboard: React.FC = () => {
           overflow: "hidden",
         }}
         className="card-hoverable"
+        styles={{
+          body: {
+            height: "100%",
+            padding: "var(--space-md)",
+            overflowY: "auto",
+            display: "flex",
+            flexDirection: "column",
+          }
+        }}
       >
-        <div
-          style={{ height: "100%", overflowY: "auto", paddingRight: "10px" }}
-        >
+        <div style={{ flex: 1, overflowY: "auto" }}>
           {history.length === 0 ? (
             <Empty
               image={Empty.PRESENTED_IMAGE_SIMPLE}

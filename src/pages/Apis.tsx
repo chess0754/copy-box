@@ -17,6 +17,17 @@ const providerOptions = [
   { value: "anthropic", label: "Anthropic" },
   { value: "azure", label: "Azure OpenAI" },
   { value: "ollama", label: "Ollama" },
+  { value: "alibaba", label: "阿里云通义千问" },
+  { value: "baidu", label: "百度文心一言" },
+  { value: "zhipu", label: "智谱AI" },
+  { value: "xunfei", label: "讯飞星火" },
+  { value: "moonshot", label: "月之暗面 Kimi" },
+  { value: "baichuan", label: "百川智能" },
+  { value: "minimax", label: "MiniMax" },
+  { value: "deepseek", label: "DeepSeek" },
+  { value: "doubao", label: "字节豆包" },
+  { value: "tencent", label: "腾讯混元" },
+  { value: "siliconflow", label: "SiliconFlow" },
   { value: "custom", label: "自定义" },
 ];
 
@@ -106,6 +117,17 @@ const Apis: React.FC = () => {
       case "anthropic": return "https://api.anthropic.com";
       case "ollama": return "http://localhost:11434";
       case "azure": return "https://your-resource.openai.azure.com";
+      case "alibaba": return "https://dashscope.aliyuncs.com";
+      case "baidu": return "https://aip.baidubce.com";
+      case "zhipu": return "https://open.bigmodel.cn";
+      case "xunfei": return "https://spark-api-open.xf-yun.com";
+      case "moonshot": return "https://api.moonshot.cn";
+      case "baichuan": return "https://api.baichuan-ai.com";
+      case "minimax": return "https://api.minimax.chat";
+      case "deepseek": return "https://api.deepseek.com";
+      case "doubao": return "https://ark.cn-beijing.volces.com";
+      case "tencent": return "https://hunyuan.tencentcloudapi.com";
+      case "siliconflow": return "https://api.siliconflow.cn";
       default: return "";
     }
   };
@@ -225,6 +247,17 @@ const Apis: React.FC = () => {
       case "anthropic": return "orange";
       case "azure": return "blue";
       case "ollama": return "purple";
+      case "alibaba": return "orange";
+      case "baidu": return "blue";
+      case "zhipu": return "cyan";
+      case "xunfei": return "red";
+      case "moonshot": return "magenta";
+      case "baichuan": return "volcano";
+      case "minimax": return "geekblue";
+      case "deepseek": return "blue";
+      case "doubao": return "gold";
+      case "tencent": return "green";
+      case "siliconflow": return "purple";
       default: return "default";
     }
   };

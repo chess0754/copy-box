@@ -5,6 +5,7 @@ import Notes from "../pages/Notes";
 import NoteWindow from "../pages/NoteWindow";
 import Skills from "../pages/Skills";
 import Apis from "../pages/Apis";
+import Chat from "../pages/Chat";
 import { Layout, Menu } from "antd";
 import {
   AppstoreOutlined,
@@ -12,6 +13,7 @@ import {
   FormOutlined,
   ThunderboltOutlined,
   ApiOutlined,
+  MessageOutlined,
 } from "@ant-design/icons";
 import { useNavigate, useLocation } from "react-router-dom";
 import "../App.css";
@@ -49,6 +51,11 @@ const AppLayout: React.FC = () => {
       key: "/apis",
       icon: <ApiOutlined />,
       label: "API",
+    },
+    {
+      key: "/chat",
+      icon: <MessageOutlined />,
+      label: "AI 对话",
     },
     {
       key: "/apps",
@@ -187,6 +194,10 @@ export const router = createHashRouter([
       {
         path: "notes",
         element: <Notes />,
+      },
+      {
+        path: "chat",
+        element: <Chat />,
       },
       {
         path: "skills",

@@ -423,6 +423,10 @@
   border-bottom-color: var(--color-border) !important;
 }
 
+.ant-modal-body {
+  color: var(--color-text-primary) !important;
+}
+
 .ant-modal-title {
   color: var(--color-text-primary) !important;
   font-weight: 600 !important;
@@ -439,6 +443,316 @@
 
 .ant-modal-footer {
   border-top-color: var(--color-border) !important;
+}
+
+.ant-modal-footer .ant-btn {
+  color: var(--color-text-primary) !important;
+}
+
+/* 弹窗内文字颜色 */
+.ant-modal .ant-modal-content .ant-modal-body,
+.ant-modal .ant-modal-content .ant-modal-header .ant-modal-title,
+.ant-modal .ant-modal-content .ant-modal-footer {
+  color: var(--color-text-primary) !important;
+}
+
+/* 所有弹窗文字 */
+.ant-modal-content .ant-modal-body,
+.ant-modal-content .ant-modal-header .ant-modal-title,
+.ant-modal-content .ant-modal-footer,
+.ant-modal-content .ant-modal-close {
+  color: var(--color-text-primary) !important;
+}
+
+/* 全局 Ant Design 组件文字颜色修复 */
+.ant-typography,
+.ant-typography.ant-typography-secondary,
+.ant-typography paragraph,
+.ant-typography h1,
+.ant-typography h2,
+.ant-typography h3,
+.ant-typography h4,
+.ant-typography h5,
+.ant-typography h6 {
+  color: var(--color-text-primary) !important;
+}
+
+.ant-typography.ant-typography-secondary {
+  color: var(--color-text-secondary) !important;
+}
+
+/* Input 相关 */
+.ant-input,
+.ant-input-affix-wrapper,
+.ant-input-number,
+.ant-select-selector,
+.ant-select-selection-item,
+.ant-select-selection-placeholder,
+.ant-picker,
+.ant-cascader-picker {
+  color: var(--color-text-primary) !important;
+}
+
+.ant-input::placeholder,
+.ant-input-affix-wrapper::placeholder,
+.ant-input-number::placeholder,
+.ant-select-selection-placeholder,
+.ant-picker-placeholder,
+.ant-cascader-picker-expand-trigger {
+  color: var(--color-text-tertiary) !important;
+}
+
+.ant-input-label,
+.ant-input-group-addon,
+.ant-input-number-group-addon {
+  color: var(--color-text-secondary) !important;
+  background: var(--color-bg-base) !important;
+  border-color: var(--color-border) !important;
+}
+
+/* Select 下拉菜单 */
+.ant-select-dropdown,
+.ant-select-item {
+  background: var(--color-bg-elevated) !important;
+  color: var(--color-text-primary) !important;
+}
+
+.ant-select-item-option-active,
+.ant-select-item-option-selected {
+  background: var(--color-bg-base) !important;
+}
+
+/* Dropdown 下拉菜单 */
+.ant-dropdown-menu,
+.ant-dropdown-menu-item {
+  background: var(--color-bg-elevated) !important;
+  color: var(--color-text-primary) !important;
+}
+
+.ant-dropdown-menu-item:hover,
+.ant-dropdown-menu-submenu-title:hover {
+  background: var(--color-bg-base) !important;
+}
+
+/* DatePicker 日期选择器 */
+.ant-picker-dropdown,
+.ant-picker-panel,
+.ant-picker-header,
+.ant-picker-body,
+.ant-picker-content th,
+.ant-picker-content td,
+.ant-picker-cell,
+.ant-picker-cell-inner {
+  background: var(--color-bg-elevated) !important;
+  color: var(--color-text-primary) !important;
+}
+
+.ant-picker-header button,
+.ant-picker-prev-icon,
+.ant-picker-next-icon,
+.ant-picker-super-prev-icon,
+.ant-picker-super-next-icon {
+  color: var(--color-text-secondary) !important;
+}
+
+.ant-picker-cell-in-view.ant-picker-cell-selected .ant-picker-cell-inner,
+.ant-picker-cell-in-view.ant-picker-cell-range-start .ant-picker-cell-inner,
+.ant-picker-cell-in-view.ant-picker-cell-range-end .ant-picker-cell-inner {
+  background: var(--color-primary) !important;
+}
+
+/* Table 表格 */
+.ant-table,
+.ant-table-thead,
+.ant-table-tbody,
+.ant-table-column,
+.ant-table-cell,
+.ant-table-row {
+  background: var(--color-bg-elevated) !important;
+  color: var(--color-text-primary) !important;
+}
+
+.ant-table-thead > tr > th {
+  background: var(--color-bg-base) !important;
+  color: var(--color-text-primary) !important;
+  border-bottom-color: var(--color-border) !important;
+}
+
+.ant-table-tbody > tr > td {
+  border-bottom-color: var(--color-border) !important;
+}
+
+.ant-table-tbody > tr:hover > td {
+  background: var(--color-bg-base) !important;
+}
+
+/* Tabs 标签页 */
+.ant-tabs,
+.ant-tabs-tab,
+.ant-tabs-tab-btn,
+.ant-tabs-content {
+  color: var(--color-text-primary) !important;
+}
+
+.ant-tabs-tab:hover,
+.ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: var(--color-primary) !important;
+}
+
+.ant-tabs-ink-bar {
+  background: var(--color-primary) !important;
+}
+
+/* Tag 标签 */
+.ant-tag {
+  color: var(--color-text-primary) !important;
+}
+
+/* Badge 徽章 */
+.ant-badge-count,
+.ant-badge-dot,
+.ant-badge-text {
+  color: var(--color-text-primary) !important;
+}
+
+/* Tooltip 提示 */
+.ant-tooltip-inner {
+  background: var(--color-bg-elevated) !important;
+  color: var(--color-text-primary) !important;
+}
+
+.ant-tooltip-arrow::before {
+  background: var(--color-bg-elevated) !important;
+}
+
+/* Message 全局提示 */
+.ant-message-notice-content {
+  background: var(--color-bg-elevated) !important;
+  color: var(--color-text-primary) !important;
+  box-shadow: var(--shadow-elevated) !important;
+}
+
+/* Notification 通知 */
+.ant-notification-notice {
+  background: var(--color-bg-elevated) !important;
+}
+
+.ant-notification-notice-message,
+.ant-notification-notice-description,
+.ant-notification-notice-close {
+  color: var(--color-text-primary) !important;
+}
+
+/* Spin 加载 */
+.ant-spin-text {
+  color: var(--color-text-primary) !important;
+}
+
+/* Empty 空状态 */
+.ant-empty-description {
+  color: var(--color-text-secondary) !important;
+}
+
+/* Skeleton 骨架屏 */
+.ant-skeleton-content .ant-skeleton-title,
+.ant-skeleton-content .ant-skeleton-paragraph > li,
+.ant-skeleton-avatar {
+  background: linear-gradient(90deg, var(--color-bg-base) 25%, var(--color-bg-elevated) 37%, var(--color-bg-base) 63%) !important;
+  background-size: 400% 100% !important;
+}
+
+/* Progress 进度条 */
+.ant-progress-text {
+  color: var(--color-text-primary) !important;
+}
+
+/* Slider 滑块 */
+.ant-slider-rail,
+.ant-slider-track {
+  background: var(--color-bg-base) !important;
+}
+
+.ant-slider-handle::after {
+  background: var(--color-primary) !important;
+  box-shadow: 0 0 0 2px var(--color-primary) !important;
+}
+
+.ant-slider-track {
+  background: var(--color-primary) !important;
+}
+
+/* Switch 开关 */
+.ant-switch {
+  background: var(--color-bg-base) !important;
+}
+
+.ant-switch-checked {
+  background: var(--color-primary) !important;
+}
+
+/* Checkbox 复选框 */
+.ant-checkbox-inner {
+  background: var(--color-bg-base) !important;
+  border-color: var(--color-border) !important;
+}
+
+.ant-checkbox-checked .ant-checkbox-inner {
+  background: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+}
+
+/* Radio 单选框 */
+.ant-radio-inner {
+  background: var(--color-bg-base) !important;
+  border-color: var(--color-border) !important;
+}
+
+.ant-radio-checked .ant-radio-inner {
+  background: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+}
+
+/* Steps 步骤条 */
+.ant-steps-item-finish .ant-steps-item-icon {
+  background: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+}
+
+.ant-steps-item-finish .ant-steps-item-description,
+.ant-steps-item-process .ant-steps-item-description,
+.ant-steps-item-wait .ant-steps-item-description {
+  color: var(--color-text-secondary) !important;
+}
+
+/* Tree 树形控件 */
+.ant-tree,
+.ant-tree-node-content,
+.ant-tree-treenode {
+  background: transparent !important;
+  color: var(--color-text-primary) !important;
+}
+
+.ant-tree-node-content:hover {
+  background: var(--color-bg-base) !important;
+}
+
+/* List 列表 */
+.ant-list,
+.ant-list-item,
+.ant-list-item-meta-title,
+.ant-list-item-meta-description {
+  color: var(--color-text-primary) !important;
+}
+
+.ant-list-item-meta {
+  border-bottom-color: var(--color-border) !important;
+}
+
+/* Calendar 日历 */
+.ant-picker-calendar,
+.ant-picker-calendar-header {
+  background: var(--color-bg-elevated) !important;
+  color: var(--color-text-primary) !important;
 }
 
 /* 抽屉样式覆盖 */
@@ -570,4 +884,101 @@ a {
 
 a:hover {
   color: var(--color-primary-hover);
+}
+
+/* Markdown 内容样式 */
+.markdown-content {
+  line-height: 1.6;
+  color: var(--color-text-primary);
+}
+
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3,
+.markdown-content h4,
+.markdown-content h5,
+.markdown-content h6 {
+  margin-top: 1em;
+  margin-bottom: 0.5em;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.markdown-content h1 { font-size: 1.5em; }
+.markdown-content h2 { font-size: 1.3em; }
+.markdown-content h3 { font-size: 1.1em; }
+
+.markdown-content p {
+  margin: 0.5em 0;
+}
+
+.markdown-content code {
+  background: rgba(99, 102, 241, 0.1);
+  padding: 0.2em 0.4em;
+  border-radius: var(--radius-sm);
+  font-family: 'Fira Code', 'Monaco', 'Consolas', monospace;
+  font-size: 0.9em;
+}
+
+.markdown-content pre {
+  background: var(--color-bg-base);
+  padding: 1em;
+  border-radius: var(--radius-md);
+  overflow-x: auto;
+  margin: 0.5em 0;
+}
+
+.markdown-content pre code {
+  background: transparent;
+  padding: 0;
+}
+
+.markdown-content ul,
+.markdown-content ol {
+  padding-left: 1.5em;
+  margin: 0.5em 0;
+}
+
+.markdown-content li {
+  margin: 0.25em 0;
+}
+
+.markdown-content blockquote {
+  border-left: 3px solid var(--color-primary);
+  padding-left: 1em;
+  margin: 0.5em 0;
+  color: var(--color-text-secondary);
+}
+
+.markdown-content a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.markdown-content a:hover {
+  text-decoration: underline;
+}
+
+.markdown-content table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 0.5em 0;
+}
+
+.markdown-content th,
+.markdown-content td {
+  border: 1px solid var(--color-border);
+  padding: 0.5em;
+  text-align: left;
+}
+
+.markdown-content th {
+  background: var(--color-bg-base);
+  font-weight: 600;
+}
+
+.markdown-content hr {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin: 1em 0;
 }

@@ -4,14 +4,12 @@ import electron from 'vite-plugin-electron'
 import electronRenderer from 'vite-plugin-electron-renderer'
 import path from 'path'
 
-// https://vitejs.dev/config/
 export default defineConfig({
   base: './',
   plugins: [
     react(),
     electron([
       {
-        // Main process entry
         entry: 'electron/main.ts',
         vite: {
           build: {
@@ -23,7 +21,6 @@ export default defineConfig({
         }
       },
       {
-        // Preload script entry
         entry: 'electron/preload.ts',
         onstart(args) {
           args.reload()

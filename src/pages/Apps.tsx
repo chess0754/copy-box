@@ -192,13 +192,15 @@ const Apps: React.FC = () => {
                     handleOpenBrowser(item);
                   }
                 }}
-                bodyStyle={{
-                  width: "100%",
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  padding: "var(--space-sm)",
+                styles={{
+                  body: {
+                    width: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    padding: "var(--space-sm)",
+                  }
                 }}
               >
                 <Space

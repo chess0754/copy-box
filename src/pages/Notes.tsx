@@ -7,8 +7,12 @@ import {
   ExportOutlined,
   SearchOutlined,
   RobotOutlined,
+  StarOutlined,
+  LoadingOutlined,
 } from "@ant-design/icons";
 import { useNoteStore, NoteItem } from "../store/noteStore";
+import { useApiStore } from "../store/apiStore";
+import { beautifyContent } from "../services/beautifyService";
 
 // URL 检测正则
 const URL_REGEX = /(https?:\/\/[^\s<>"{}|\\^`[\]]+)/g;
@@ -39,7 +43,12 @@ const renderContentWithLinks = (content: string) => {
 };
 
 const Notes: React.FC = () => {
-  const { notes, addNote, deleteNote } = useNoteStore();
+  const { notes, addNote, updateNote, deleteNote } = useNoteStore();
+  const { activeConfigId, getConfigById } = useApiStore();
+
+  const [beautifyingId, setBeautifyingId] = useState<string | null>(null);
+  const [beautifyModalOpen, setBeautifyModalOpen] = useState(false);
+  const [beautifyResult, setBeautifyResult] = useState<{ id: string; title: string; content: string } | null>(null);
 
   // Storage event listener to sync state across windows
   useEffect(() => {
@@ -133,6 +142,46 @@ const Notes: React.FC = () => {
     e.stopPropagation();
     window.electronAPI.writeClipboardText(content);
     message.success("内容已复制");
+  };
+
+  const handleBeautify = async (note: NoteItem, e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    const activeConfig = activeConfigId ? getConfigById(activeConfigId) : null;
+    if (!activeConfig) {
+      message.warning("请先在 API 页面配置并激活一个 API");
+      return;
+    }
+
+    setBeautifyingId(note.id);
+    try {
+      const beautifiedContent = await beautifyContent(activeConfig, {
+        type: "prompt",
+        title: note.title,
+        content: note.content,
+        category: note.category,
+      });
+
+      setBeautifyResult({
+        id: note.id,
+        title: note.title,
+        content: beautifiedContent,
+      });
+      setBeautifyModalOpen(true);
+    } catch (error) {
+      message.error(`美化失败: ${error instanceof Error ? error.message : "未知错误"}`);
+    } finally {
+      setBeautifyingId(null);
+    }
+  };
+
+  const handleApplyBeautify = () => {
+    if (beautifyResult) {
+      updateNote(beautifyResult.id, { content: beautifyResult.content });
+      setBeautifyModalOpen(false);
+      setBeautifyResult(null);
+      message.success("内容已更新");
+    }
   };
 
   // 随机颜色标签
@@ -307,6 +356,27 @@ const Notes: React.FC = () => {
                       >
                         复制
                       </Button>,
+                      beautifyingId === item.id ? (
+                        <Button
+                          type="text"
+                          icon={<LoadingOutlined spin />}
+                          key="beautifying"
+                          size="small"
+                          disabled
+                        >
+                          美化中
+                        </Button>
+                      ) : (
+                        <Button
+                          type="text"
+                          icon={<StarOutlined />}
+                          key="beautify"
+                          onClick={(e) => handleBeautify(item, e)}
+                          size="small"
+                        >
+                          美化
+                        </Button>
+                      ),
                     ]}
                   >
                     {item.category && (
@@ -433,6 +503,41 @@ const Notes: React.FC = () => {
             rows={4}
           />
         </div>
+      </Modal>
+
+      <Modal
+        title={
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <StarOutlined style={{ color: "var(--color-primary)" }} />
+            AI 美化结果
+          </div>
+        }
+        open={beautifyModalOpen}
+        onOk={handleApplyBeautify}
+        onCancel={() => {
+          setBeautifyModalOpen(false);
+          setBeautifyResult(null);
+        }}
+        width={600}
+        okText="应用"
+        cancelText="取消"
+      >
+        {beautifyResult && (
+          <div>
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ marginBottom: 8, fontWeight: 500 }}>标题</div>
+              <div style={{ color: "var(--color-text-secondary)" }}>{beautifyResult.title}</div>
+            </div>
+            <div>
+              <div style={{ marginBottom: 8, fontWeight: 500 }}>美化后内容</div>
+              <Input.TextArea
+                value={beautifyResult.content}
+                onChange={(e) => setBeautifyResult({ ...beautifyResult, content: e.target.value })}
+                rows={10}
+              />
+            </div>
+          </div>
+        )}
       </Modal>
     </div>
   );
