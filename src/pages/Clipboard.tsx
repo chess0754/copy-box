@@ -190,7 +190,7 @@ const Clipboard: React.FC = () => {
         className="card-hoverable"
         styles={{
           body: {
-            height: "100%",
+            height: "calc(100% - 80px)",
             padding: "var(--space-md)",
             overflowY: "auto",
             display: "flex",
