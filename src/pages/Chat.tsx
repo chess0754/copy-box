@@ -230,7 +230,7 @@ const Chat: React.FC = () => {
   }, [configs]);
 
   return (
-    <div className="content-section" style={{ display: "flex", height: "calc(100vh - 200px)", gap: 16 }}>
+    <div className="content-section" style={{ display: "flex", height: "calc(100vh - 128px)", gap: 16 }}>
       <Card
         style={{ width: 260, overflow: "hidden" }}
         title={

@@ -9,12 +9,15 @@
   align-items: center;
   justify-content: space-between;
   padding: 0 var(--space-lg);
-  background: var(--color-bg-base);
-  border-bottom: 1px solid var(--color-border);
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+  border-bottom: 1px solid var(--glass-border);
   height: 64px;
   -webkit-app-region: drag;
   position: relative;
   z-index: 100;
+  box-shadow: var(--glass-shadow);
 }
 
 /* 顶部导航栏装饰条 */
@@ -144,16 +147,20 @@
   padding: var(--space-lg);
   overflow: auto;
   flex: 1;
-  background: var(--color-bg-base);
+  background: transparent;
+  position: relative;
+  z-index: 1;
 }
 
 .content-container {
-  background: var(--color-bg-card);
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
   padding: var(--space-lg);
   min-height: 100%;
   border-radius: var(--radius-lg);
-  border: 1px solid var(--color-border);
-  box-shadow: var(--shadow-card);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
   animation: slideUpFadeIn 0.3s ease-out;
 }
 
@@ -187,17 +194,19 @@
    卡片组件样式覆盖
    ============================================ */
 
-/* Ant Design Card 样式覆盖 - 深色主题 */
+/* Ant Design Card 样式覆盖 - 毛玻璃效果 */
 .ant-card {
-  background: var(--color-bg-card) !important;
-  border-color: var(--color-border) !important;
+  background: var(--glass-bg) !important;
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) !important;
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) !important;
+  border-color: var(--glass-border) !important;
   border-radius: var(--radius-lg) !important;
-  box-shadow: var(--shadow-sm) !important;
+  box-shadow: var(--glass-shadow) !important;
 }
 
 .ant-card:hover {
-  border-color: var(--color-border-light) !important;
-  box-shadow: var(--shadow-card) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4) !important;
 }
 
 .ant-card-head {
@@ -269,8 +278,10 @@
 }
 
 .ant-btn-default {
-  background: var(--color-bg-elevated) !important;
-  border-color: var(--color-border) !important;
+  background: rgba(30, 41, 59, 0.5) !important;
+  backdrop-filter: blur(10px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(10px) saturate(150%) !important;
+  border-color: var(--glass-border) !important;
   color: var(--color-text-primary) !important;
 }
 
@@ -298,8 +309,10 @@
 .ant-input-affix-wrapper,
 .ant-select-selector,
 .ant-picker {
-  background: var(--color-bg-base) !important;
-  border-color: var(--color-border) !important;
+  background: rgba(15, 23, 42, 0.5) !important;
+  backdrop-filter: blur(10px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(10px) saturate(150%) !important;
+  border-color: var(--glass-border) !important;
   color: var(--color-text-primary) !important;
   border-radius: var(--radius-md) !important;
 }
@@ -357,10 +370,12 @@
 
 /* 下拉选择框样式覆盖 */
 .ant-select-dropdown {
-  background: var(--color-bg-elevated) !important;
-  border: 1px solid var(--color-border) !important;
+  background: var(--glass-bg) !important;
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) !important;
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) !important;
+  border: 1px solid var(--glass-border) !important;
   border-radius: var(--radius-md) !important;
-  box-shadow: var(--shadow-elevated) !important;
+  box-shadow: var(--glass-shadow) !important;
 }
 
 .ant-select-item {
@@ -392,13 +407,16 @@
 }
 
 .ant-popover {
-  background: var(--color-bg-elevated) !important;
-  border: 1px solid var(--color-border) !important;
+  background: var(--glass-bg) !important;
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) !important;
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) !important;
+  border: 1px solid var(--glass-border) !important;
   border-radius: var(--radius-md) !important;
+  box-shadow: var(--glass-shadow) !important;
 }
 
 .ant-popover-inner {
-  background: var(--color-bg-elevated) !important;
+  background: transparent !important;
 }
 
 .ant-popover-title {
@@ -412,15 +430,17 @@
 
 /* 模态框样式覆盖 */
 .ant-modal-content {
-  background: var(--color-bg-elevated) !important;
-  border: 1px solid var(--color-border) !important;
+  background: var(--glass-bg) !important;
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) !important;
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) !important;
+  border: 1px solid var(--glass-border) !important;
   border-radius: var(--radius-xl) !important;
-  box-shadow: var(--shadow-elevated) !important;
+  box-shadow: var(--glass-shadow) !important;
 }
 
 .ant-modal-header {
-  background: var(--color-bg-elevated) !important;
-  border-bottom-color: var(--color-border) !important;
+  background: transparent !important;
+  border-bottom-color: var(--glass-border) !important;
 }
 
 .ant-modal-body {
@@ -438,7 +458,7 @@
 
 .ant-modal-close:hover {
   color: var(--color-text-primary) !important;
-  background: var(--color-bg-card) !important;
+  background: rgba(255, 255, 255, 0.1) !important;
 }
 
 .ant-modal-footer {
@@ -506,32 +526,38 @@
 .ant-input-group-addon,
 .ant-input-number-group-addon {
   color: var(--color-text-secondary) !important;
-  background: var(--color-bg-base) !important;
-  border-color: var(--color-border) !important;
+  background: rgba(15, 23, 42, 0.5) !important;
+  backdrop-filter: blur(10px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(10px) saturate(150%) !important;
+  border-color: var(--glass-border) !important;
 }
 
 /* Select 下拉菜单 */
 .ant-select-dropdown,
 .ant-select-item {
-  background: var(--color-bg-elevated) !important;
+  background: var(--glass-bg) !important;
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) !important;
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) !important;
   color: var(--color-text-primary) !important;
 }
 
 .ant-select-item-option-active,
 .ant-select-item-option-selected {
-  background: var(--color-bg-base) !important;
+  background: rgba(255, 255, 255, 0.1) !important;
 }
 
 /* Dropdown 下拉菜单 */
 .ant-dropdown-menu,
 .ant-dropdown-menu-item {
-  background: var(--color-bg-elevated) !important;
+  background: var(--glass-bg) !important;
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) !important;
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) !important;
   color: var(--color-text-primary) !important;
 }
 
 .ant-dropdown-menu-item:hover,
 .ant-dropdown-menu-submenu-title:hover {
-  background: var(--color-bg-base) !important;
+  background: rgba(255, 255, 255, 0.1) !important;
 }
 
 /* DatePicker 日期选择器 */
@@ -543,7 +569,9 @@
 .ant-picker-content td,
 .ant-picker-cell,
 .ant-picker-cell-inner {
-  background: var(--color-bg-elevated) !important;
+  background: var(--glass-bg) !important;
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) !important;
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) !important;
   color: var(--color-text-primary) !important;
 }
 
@@ -568,22 +596,24 @@
 .ant-table-column,
 .ant-table-cell,
 .ant-table-row {
-  background: var(--color-bg-elevated) !important;
+  background: transparent !important;
   color: var(--color-text-primary) !important;
 }
 
 .ant-table-thead > tr > th {
-  background: var(--color-bg-base) !important;
+  background: rgba(15, 23, 42, 0.5) !important;
+  backdrop-filter: blur(10px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(10px) saturate(150%) !important;
   color: var(--color-text-primary) !important;
-  border-bottom-color: var(--color-border) !important;
+  border-bottom-color: var(--glass-border) !important;
 }
 
 .ant-table-tbody > tr > td {
-  border-bottom-color: var(--color-border) !important;
+  border-bottom-color: var(--glass-border) !important;
 }
 
 .ant-table-tbody > tr:hover > td {
-  background: var(--color-bg-base) !important;
+  background: rgba(255, 255, 255, 0.05) !important;
 }
 
 /* Tabs 标签页 */
@@ -617,12 +647,16 @@
 
 /* Tooltip 提示 */
 .ant-tooltip-inner {
-  background: var(--color-bg-elevated) !important;
+  background: var(--glass-bg) !important;
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) !important;
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) !important;
+  border: 1px solid var(--glass-border) !important;
   color: var(--color-text-primary) !important;
+  box-shadow: var(--glass-shadow) !important;
 }
 
 .ant-tooltip-arrow::before {
-  background: var(--color-bg-elevated) !important;
+  background: var(--glass-bg) !important;
 }
 
 /* Message 全局提示 */
@@ -634,7 +668,11 @@
 
 /* Notification 通知 */
 .ant-notification-notice {
-  background: var(--color-bg-elevated) !important;
+  background: var(--glass-bg) !important;
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) !important;
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) !important;
+  border: 1px solid var(--glass-border) !important;
+  box-shadow: var(--glass-shadow) !important;
 }
 
 .ant-notification-notice-message,
@@ -669,7 +707,9 @@
 /* Slider 滑块 */
 .ant-slider-rail,
 .ant-slider-track {
-  background: var(--color-bg-base) !important;
+  background: rgba(15, 23, 42, 0.5) !important;
+  backdrop-filter: blur(10px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(10px) saturate(150%) !important;
 }
 
 .ant-slider-handle::after {
@@ -683,7 +723,9 @@
 
 /* Switch 开关 */
 .ant-switch {
-  background: var(--color-bg-base) !important;
+  background: rgba(15, 23, 42, 0.5) !important;
+  backdrop-filter: blur(10px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(10px) saturate(150%) !important;
 }
 
 .ant-switch-checked {
@@ -692,8 +734,10 @@
 
 /* Checkbox 复选框 */
 .ant-checkbox-inner {
-  background: var(--color-bg-base) !important;
-  border-color: var(--color-border) !important;
+  background: rgba(15, 23, 42, 0.5) !important;
+  backdrop-filter: blur(10px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(10px) saturate(150%) !important;
+  border-color: var(--glass-border) !important;
 }
 
 .ant-checkbox-checked .ant-checkbox-inner {
@@ -703,8 +747,10 @@
 
 /* Radio 单选框 */
 .ant-radio-inner {
-  background: var(--color-bg-base) !important;
-  border-color: var(--color-border) !important;
+  background: rgba(15, 23, 42, 0.5) !important;
+  backdrop-filter: blur(10px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(10px) saturate(150%) !important;
+  border-color: var(--glass-border) !important;
 }
 
 .ant-radio-checked .ant-radio-inner {
@@ -733,7 +779,7 @@
 }
 
 .ant-tree-node-content:hover {
-  background: var(--color-bg-base) !important;
+  background: rgba(255, 255, 255, 0.1) !important;
 }
 
 /* List 列表 */
@@ -751,18 +797,22 @@
 /* Calendar 日历 */
 .ant-picker-calendar,
 .ant-picker-calendar-header {
-  background: var(--color-bg-elevated) !important;
+  background: var(--glass-bg) !important;
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) !important;
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) !important;
   color: var(--color-text-primary) !important;
 }
 
 /* 抽屉样式覆盖 */
 .ant-drawer-content {
-  background: var(--color-bg-elevated) !important;
+  background: var(--glass-bg) !important;
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) !important;
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) !important;
 }
 
 .ant-drawer-header {
-  background: var(--color-bg-elevated) !important;
-  border-bottom-color: var(--color-border) !important;
+  background: transparent !important;
+  border-bottom-color: var(--glass-border) !important;
 }
 
 .ant-drawer-title {
@@ -779,10 +829,12 @@
 
 /* 消息提示样式覆盖 */
 .ant-message-notice-content {
-  background: var(--color-bg-elevated) !important;
-  border: 1px solid var(--color-border) !important;
+  background: var(--glass-bg) !important;
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) !important;
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) !important;
+  border: 1px solid var(--glass-border) !important;
   border-radius: var(--radius-md) !important;
-  box-shadow: var(--shadow-card) !important;
+  box-shadow: var(--glass-shadow) !important;
   color: var(--color-text-primary) !important;
 }
 
@@ -805,8 +857,10 @@
 
 /* 单选框样式覆盖 */
 .ant-radio-button-wrapper {
-  background: var(--color-bg-base) !important;
-  border-color: var(--color-border) !important;
+  background: rgba(15, 23, 42, 0.5) !important;
+  backdrop-filter: blur(10px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(10px) saturate(150%) !important;
+  border-color: var(--glass-border) !important;
   color: var(--color-text-secondary) !important;
 }
 
@@ -826,8 +880,10 @@
 }
 
 .ant-checkbox-inner {
-  background: var(--color-bg-base) !important;
-  border-color: var(--color-border) !important;
+  background: rgba(15, 23, 42, 0.5) !important;
+  backdrop-filter: blur(10px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(10px) saturate(150%) !important;
+  border-color: var(--glass-border) !important;
 }
 
 .ant-checkbox-checked .ant-checkbox-inner {
@@ -842,17 +898,19 @@
 
 /* 头像样式覆盖 */
 .ant-avatar {
-  background: var(--color-bg-elevated) !important;
-  border: 1px solid var(--color-border) !important;
+  background: rgba(30, 41, 59, 0.5) !important;
+  backdrop-filter: blur(10px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(10px) saturate(150%) !important;
+  border: 1px solid var(--glass-border) !important;
 }
 
 /* 分割线样式覆盖 */
 .ant-divider {
-  border-top-color: var(--color-border) !important;
+  border-top-color: var(--glass-border) !important;
 }
 
 .ant-divider-vertical {
-  border-left-color: var(--color-border) !important;
+  border-left-color: var(--glass-border) !important;
 }
 
 /* 滚动条区域文字样式 */

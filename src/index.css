@@ -8,7 +8,7 @@
   /* 主色调 - Indigo */
   --color-primary: #6366F1;
   --color-primary-hover: #4F46E5;
-  --color-primary-light: #EEF2FF;
+  --color-primary-light: rgba(99, 102, 241, 0.15);
   --color-primary-glow: rgba(99, 102, 241, 0.3);
 
   /* 辅助色 */
@@ -17,12 +17,19 @@
   --color-error: #EF4444;
   --color-info: #3B82F6;
 
-  /* 深色主题中性色 */
-  --color-bg-base: #0F172A;
-  --color-bg-elevated: #1E293B;
-  --color-bg-card: #1E293B;
-  --color-border: #334155;
-  --color-border-light: #475569;
+  /* 毛玻璃主题色 */
+  --color-bg-base: rgba(15, 23, 42, 0.6);
+  --color-bg-elevated: rgba(30, 41, 59, 0.7);
+  --color-bg-card: rgba(30, 41, 59, 0.6);
+  --color-border: rgba(255, 255, 255, 0.1);
+  --color-border-light: rgba(255, 255, 255, 0.15);
+
+  /* 毛玻璃效果 */
+  --glass-blur: 20px;
+  --glass-saturation: 180%;
+  --glass-bg: rgba(30, 41, 59, 0.65);
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 
   /* 文字颜色 */
   --color-text-primary: #F1F5F9;
@@ -82,11 +89,28 @@ html {
 
 body {
   font-family: var(--font-sans);
-  background-color: var(--color-bg-base);
+  background: linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #0F172A 100%);
+  background-attachment: fixed;
   color: var(--color-text-primary);
   min-width: 320px;
   min-height: 100vh;
   overflow: hidden;
+  position: relative;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 30%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(236, 72, 153, 0.1) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
 }
 
 #root {
@@ -94,6 +118,8 @@ body {
   height: 100vh;
   display: flex;
   flex-direction: column;
+  position: relative;
+  z-index: 1;
 }
 
 /* 滚动条样式 */
@@ -215,9 +241,17 @@ a:hover {
    ============================================ */
 
 /* 内容区域通用样式 */
-.content-section {
+/* .content-section {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+  padding: var(--space-lg);
+  min-height: 100%;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
   animation: slideUpFadeIn 0.3s ease-out;
-}
+} */
 
 /* 骨架屏占位 */
 .skeleton {
@@ -316,9 +350,11 @@ a:hover {
 
 /* 玻璃拟态效果 */
 .glass {
-  background: rgba(30, 41, 59, 0.8);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
 }
 
 /* 文字渐变 */

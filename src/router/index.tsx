@@ -154,21 +154,10 @@ const AppLayout: React.FC = () => {
           padding: "var(--space-lg)",
           overflow: "auto",
           height: "calc(100vh - 64px)",
-          background: "var(--color-bg-base)",
+          background: "transparent",
         }}
       >
-        <div
-          style={{
-            background: "var(--color-bg-card)",
-            padding: "var(--space-lg)",
-            minHeight: "100%",
-            borderRadius: "var(--radius-lg)",
-            border: "1px solid var(--color-border)",
-            boxShadow: "var(--shadow-card)",
-          }}
-        >
-          <Outlet />
-        </div>
+        <Outlet />
       </Content>
     </Layout>
   );

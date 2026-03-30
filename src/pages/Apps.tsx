@@ -154,7 +154,7 @@ const Apps: React.FC = () => {
           }
           style={{
             marginTop: 8,
-            height: "calc(100vh - 200px)",
+            height: "calc(100vh - 128px)",
             overflow: "hidden",
           }}
           className="card-hoverable"
