@@ -70,11 +70,13 @@ npm install
 ## 开发模式
 
 启动开发服务器（仅 React）：
+
 ```bash
 npm run dev
 ```
 
 启动完整的 Electron 应用（开发模式）：
+
 ```bash
 npm run electron:dev
 ```
@@ -82,21 +84,25 @@ npm run electron:dev
 ## 构建
 
 构建 React 应用：
+
 ```bash
 npm run build
 ```
 
 构建 Electron 应用（Windows）：
+
 ```bash
 npm run electron:build:win
 ```
 
 构建 Electron 应用（macOS）：
+
 ```bash
 npm run electron:build:mac
 ```
 
 构建 Electron 应用（Linux）：
+
 ```bash
 npm run electron:build:linux
 ```
@@ -138,6 +144,7 @@ npm run electron:build:linux
 ### 添加新的 IPC 通信
 
 1. 在 `electron/main.ts` 中添加 IPC 处理器：
+
 ```typescript
 ipcMain.handle('your-handler', async (event, arg) => {
   // 处理逻辑
@@ -145,14 +152,16 @@ ipcMain.handle('your-handler', async (event, arg) => {
 })
 ```
 
-2. 在 `electron/preload.ts` 中暴露 API：
+1. 在 `electron/preload.ts` 中暴露 API：
+
 ```typescript
 contextBridge.exposeInMainWorld('electronAPI', {
   yourMethod: (arg) => ipcRenderer.invoke('your-handler', arg)
 })
 ```
 
-3. 在 React 组件中使用：
+1. 在 React 组件中使用：
+
 ```typescript
 const result = await window.electronAPI.yourMethod(arg)
 ```
@@ -167,6 +176,7 @@ const result = await window.electronAPI.yourMethod(arg)
 ### 状态管理
 
 项目使用 Zustand 进行状态管理，每个功能模块都有独立的 store：
+
 - `clipboardStore.ts` - 粘贴板状态
 - `noteStore.ts` - 提示词状态
 - `skillStore.ts` - 技能状态
@@ -176,6 +186,7 @@ const result = await window.electronAPI.yourMethod(arg)
 ### AI 功能集成
 
 项目集成了 LangChain 和多种 AI 模型：
+
 - 支持 OpenAI 和 Anthropic API
 - 通过 `aiChatStream` 方法实现流式对话
 - 配置存储在 `apiStore` 中

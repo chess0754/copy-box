@@ -91,7 +91,7 @@ ipcMain.handle("create-note-window", (event, noteId: string) => {
 
 // App event listeners
 app.whenReady().then(() => {
-  // 配置 CORS 允许所有 origin（开发时使用）
+  // 配置 CSP (Content Security Policy)
   session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
     callback({
       responseHeaders: {
@@ -99,6 +99,11 @@ app.whenReady().then(() => {
         "Access-Control-Allow-Origin": ["*"],
         "Access-Control-Allow-Methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
         "Access-Control-Allow-Headers": ["*"],
+        "Content-Security-Policy": [
+          process.env.VITE_DEV_SERVER_URL
+            ? "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: http://localhost:* https://localhost:*; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; connect-src 'self' http://localhost:* https://localhost:* ws://localhost:*"
+            : "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self'"
+        ],
       },
     });
   });

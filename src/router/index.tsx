@@ -167,10 +167,11 @@ const AppLayout: React.FC = () => {
  * 应用路由配置
  * 使用 Hash 路由模式以兼容 Electron 环境
  */
-export const router = createHashRouter([
-  {
-    path: "/",
-    element: <AppLayout />,
+export const router = createHashRouter(
+  [
+    {
+      path: "/",
+      element: <AppLayout />,
     children: [
       {
         index: true,

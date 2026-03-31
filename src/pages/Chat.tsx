@@ -27,6 +27,7 @@ import {
 import { useChatStore, ChatMessage } from "../store/chatStore";
 import { useApiStore } from "../store/apiStore";
 import ReactMarkdown from "react-markdown";
+import SlashCommandDropdown, { SlashCommandItem } from "../components/SlashCommandDropdown";
 
 const { TextArea } = Input;
 const { Text } = Typography;
@@ -48,12 +49,17 @@ const Chat: React.FC = () => {
   } = useChatStore();
 
   const { configs, activeConfigId, getConfigById } = useApiStore();
-  
+
   const [inputValue, setInputValue] = useState("");
   const [systemPrompt, setSystemPrompt] = useState("你是一个有帮助的AI助手。");
   const [showSettings, setShowSettings] = useState(false);
   const [selectedApiId, setSelectedApiId] = useState<string | null>(null);
-  
+
+  // 斜杠命令状态
+  const [showSlashCommand, setShowSlashCommand] = useState(false);
+  const [slashCommandPosition, setSlashCommandPosition] = useState({ top: 0, left: 0 });
+  const [slashSearchText, setSlashSearchText] = useState("");
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<any>(null);
   const cleanupRef = useRef<(() => void) | null>(null);
@@ -105,6 +111,60 @@ const Chat: React.FC = () => {
   const handleCopyMessage = (content: string) => {
     navigator.clipboard.writeText(content);
     message.success("已复制到剪贴板");
+  };
+
+  // 处理斜杠命令触发
+  const handleSlashCommandTrigger = (value: string, e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const slashIndex = value.lastIndexOf("/");
+    if (slashIndex === -1) {
+      setShowSlashCommand(false);
+      return;
+    }
+
+    const textBeforeSlash = value.substring(0, slashIndex);
+    const lastNewline = textBeforeSlash.lastIndexOf("\n");
+    const textAfterLastNewline = textBeforeSlash.substring(lastNewline + 1);
+
+    if (textAfterLastNewline.trim() !== "") {
+      setShowSlashCommand(false);
+      return;
+    }
+
+    const searchText = value.substring(slashIndex + 1);
+    setSlashSearchText(searchText);
+
+    const textarea = e.target as HTMLTextAreaElement;
+    const rect = textarea.getBoundingClientRect();
+    setSlashCommandPosition({
+      top: rect.top - 10,
+      left: rect.left,
+    });
+
+    setShowSlashCommand(true);
+  };
+
+  // 处理选择斜杠命令项
+  const handleSlashCommandSelect = (item: SlashCommandItem) => {
+    const slashIndex = inputValue.lastIndexOf("/");
+    const textBeforeSlash = inputValue.substring(0, slashIndex);
+    const lastNewline = textBeforeSlash.lastIndexOf("\n");
+
+    const prefix = inputValue.substring(0, lastNewline + 1);
+    const insertContent = item.type === "note"
+      ? `{{提示词: ${item.title}}}`
+      : `{{技能: ${item.title}}}`;
+
+    setInputValue(prefix + insertContent + "\n");
+    setShowSlashCommand(false);
+    setTimeout(() => {
+      const textarea = inputRef.current as any;
+      if (textarea?.focus) textarea.focus();
+    }, 0);
+  };
+
+  // 关闭斜杠命令
+  const handleSlashCommandClose = () => {
+    setShowSlashCommand(false);
   };
 
   const handleSendMessage = async () => {
@@ -418,16 +478,36 @@ const Chat: React.FC = () => {
           }}
         >
           <div style={{ display: "flex", gap: 12 }}>
-            <TextArea
-              ref={inputRef}
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="输入消息... (Enter 发送, Shift+Enter 换行)"
-              autoSize={{ minRows: 1, maxRows: 4 }}
-              style={{ flex: 1 }}
-              disabled={isGenerating}
-            />
+            <div style={{ flex: 1, position: "relative" }}>
+              <TextArea
+                ref={inputRef}
+                value={inputValue}
+                onChange={(e) => {
+                  setInputValue(e.target.value);
+                  handleSlashCommandTrigger(e.target.value, e);
+                }}
+                onKeyDown={(e) => {
+                  if (showSlashCommand) {
+                    if (["ArrowUp", "ArrowDown", "Enter", "Escape"].includes(e.key)) {
+                      e.preventDefault();
+                      return;
+                    }
+                  }
+                  handleKeyDown(e);
+                }}
+                placeholder="输入消息... (输入 / 选择提示词或技能)"
+                autoSize={{ minRows: 1, maxRows: 4 }}
+                style={{ flex: 1 }}
+                disabled={isGenerating}
+              />
+              <SlashCommandDropdown
+                visible={showSlashCommand}
+                position={slashCommandPosition}
+                searchText={slashSearchText}
+                onSelect={handleSlashCommandSelect}
+                onClose={handleSlashCommandClose}
+              />
+            </div>
             {isGenerating ? (
               <Button
                 type="primary"
