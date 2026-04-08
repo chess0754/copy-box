@@ -2,6 +2,10 @@
 
 多功能桌面工具箱，集成了粘贴板管理、提示词管理、AI 对话、API 管理等功能，基于 Electron、React、TypeScript 和 Ant Design 构建。
 
+## 项目简介
+
+Copy Box 是一款功能强大的桌面应用，旨在提高用户的工作效率。通过集成多种实用工具，用户可以更方便地管理剪贴板历史、AI 提示词、技能配置以及 API 密钥，同时提供内置的 AI 对话功能。
+
 ## 技术栈
 
 - **Electron 28** - 跨平台桌面应用框架
@@ -129,6 +133,7 @@ npm run electron:build:linux
 - Markdown 渲染支持
 - 代码差异对比功能
 - 状态持久化存储
+- 跨平台支持（Windows、macOS、Linux）
 
 ## 主要页面
 
