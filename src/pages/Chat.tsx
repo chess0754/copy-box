@@ -150,9 +150,7 @@ const Chat: React.FC = () => {
     const lastNewline = textBeforeSlash.lastIndexOf("\n");
 
     const prefix = inputValue.substring(0, lastNewline + 1);
-    const insertContent = item.type === "note"
-      ? `{{提示词: ${item.title}}}`
-      : `{{技能: ${item.title}}}`;
+    const insertContent = `{{提示词: ${item.title}}}`;
 
     setInputValue(prefix + insertContent + "\n");
     setShowSlashCommand(false);
@@ -495,7 +493,7 @@ const Chat: React.FC = () => {
                   }
                   handleKeyDown(e);
                 }}
-                placeholder="输入消息... (输入 / 选择提示词或技能)"
+                placeholder="输入消息... (输入 / 选择提示词)"
                 autoSize={{ minRows: 1, maxRows: 4 }}
                 style={{ flex: 1 }}
                 disabled={isGenerating}

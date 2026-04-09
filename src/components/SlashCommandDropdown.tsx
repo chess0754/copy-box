@@ -1,17 +1,15 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useNoteStore } from "../store/noteStore";
-import { useSkillStore } from "../store/skillStore";
 import { Typography, Tag, Empty } from "antd";
 import {
   FileTextOutlined,
-  ThunderboltOutlined,
 } from "@ant-design/icons";
 
 const { Text } = Typography;
 
 export interface SlashCommandItem {
   id: string;
-  type: "note" | "skill";
+  type: "note";
   title: string;
   content: string;
   description?: string;
@@ -34,7 +32,6 @@ const SlashCommandDropdown: React.FC<SlashCommandDropdownProps> = ({
   onClose,
 }) => {
   const notes = useNoteStore((state) => state.notes);
-  const skills = useSkillStore((state) => state.skills);
 
   const [selectedIndex, setSelectedIndex] = useState(0);
 
@@ -47,19 +44,8 @@ const SlashCommandDropdown: React.FC<SlashCommandDropdownProps> = ({
       icon: <FileTextOutlined />,
     }));
 
-    const skillItems: SlashCommandItem[] = skills
-      .filter((skill) => skill.enabled)
-      .map((skill) => ({
-        id: skill.id,
-        type: "skill" as const,
-        title: skill.title,
-        content: skill.content,
-        description: skill.description,
-        icon: <ThunderboltOutlined />,
-      }));
-
-    return [...noteItems, ...skillItems];
-  }, [notes, skills]);
+    return noteItems;
+  }, [notes]);
 
   const filteredItems = useMemo(() => {
     if (!searchText) return allItems;
@@ -73,8 +59,7 @@ const SlashCommandDropdown: React.FC<SlashCommandDropdownProps> = ({
 
   const groupedItems = useMemo(() => {
     const notes = filteredItems.filter((item) => item.type === "note");
-    const skills = filteredItems.filter((item) => item.type === "skill");
-    return { notes, skills };
+    return { notes };
   }, [filteredItems]);
 
   useEffect(() => {
@@ -146,7 +131,7 @@ const SlashCommandDropdown: React.FC<SlashCommandDropdownProps> = ({
       >
         <Empty
           image={Empty.PRESENTED_IMAGE_SIMPLE}
-          description="没有找到匹配的提示词或技能"
+          description="没有找到匹配的提示词"
         />
       </div>
     );
@@ -195,93 +180,6 @@ const SlashCommandDropdown: React.FC<SlashCommandDropdownProps> = ({
               {groupedItems.notes.length} 个
             </div>
             {groupedItems.notes.map((item) => {
-              globalIndex++;
-              const isSelected = globalIndex === selectedIndex;
-              return (
-                <div
-                  key={item.id}
-                  onClick={() => onSelect(item)}
-                  style={{
-                    padding: "10px 12px",
-                    cursor: "pointer",
-                    background: isSelected
-                      ? "var(--color-primary-bg)"
-                      : "transparent",
-                    borderLeft: isSelected
-                      ? "3px solid var(--color-primary)"
-                      : "3px solid transparent",
-                    transition: "background 0.15s",
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!isSelected) {
-                      e.currentTarget.style.background =
-                        "var(--color-bg-base)";
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!isSelected) {
-                      e.currentTarget.style.background = "transparent";
-                    }
-                  }}
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 8,
-                    }}
-                  >
-                    <span style={{ color: "var(--color-primary)" }}>
-                      {item.icon}
-                    </span>
-                    <Text strong style={{ fontSize: 14 }}>
-                      {item.title}
-                    </Text>
-                  </div>
-                  {item.description && (
-                    <Text
-                      type="secondary"
-                      style={{ fontSize: 12 }}
-                      ellipsis
-                    >
-                      {item.description}
-                    </Text>
-                  )}
-                  <Text
-                    type="secondary"
-                    style={{ fontSize: 12 }}
-                    ellipsis
-                  >
-                    {item.content.slice(0, 50)}
-                    {item.content.length > 50 ? "..." : ""}
-                  </Text>
-                </div>
-              );
-            })}
-          </>
-        )}
-
-        {groupedItems.skills.length > 0 && (
-          <>
-            <div
-              style={{
-                padding: "8px 12px",
-                fontSize: 12,
-                color: "var(--color-text-tertiary)",
-                fontWeight: 500,
-                borderBottom: "1px solid var(--color-border)",
-                borderTop:
-                  groupedItems.notes.length > 0
-                    ? "1px solid var(--color-border)"
-                    : "none",
-              }}
-            >
-              <Tag color="orange" style={{ marginRight: 8 }}>
-                技能
-              </Tag>
-              {groupedItems.skills.length} 个
-            </div>
-            {groupedItems.skills.map((item) => {
               globalIndex++;
               const isSelected = globalIndex === selectedIndex;
               return (

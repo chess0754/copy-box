@@ -7,6 +7,7 @@ export interface ChatMessage {
   content: string;
   timestamp: string;
   isStreaming?: boolean;
+  model?: string;
 }
 
 export interface ChatSession {

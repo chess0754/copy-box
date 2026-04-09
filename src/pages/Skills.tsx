@@ -39,6 +39,10 @@ const Skills: React.FC = () => {
   const [searchText, setSearchText] = useState("");
   const [filterCategory, setFilterCategory] = useState<string | null>(null);
   const [filterType, setFilterType] = useState<SkillType | null>(null);
+  const [showClawHubModal, setShowClawHubModal] = useState(false);
+  const [clawHubSkills, setClawHubSkills] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [clawHubSearch, setClawHubSearch] = useState("");
 
   // 获取所有分类
   const categories = useMemo(() => {
@@ -188,6 +192,59 @@ const Skills: React.FC = () => {
     updateSkill(id, { enabled });
   };
 
+  // 查询 ClawHub 技能
+  const fetchSkillHubSkills = async () => {
+    setIsLoading(true);
+    try {
+      const response = await window.electronAPI.fetch({
+        url: `https://clawhub.example.com/api/skills${clawHubSearch ? `?search=${encodeURIComponent(clawHubSearch)}` : '?limit=20'}`,
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.ok && response.data) {
+        setClawHubSkills(response.data.skills || []);
+      } else {
+        message.error('获取 ClawHub 技能失败');
+      }
+    } catch (error) {
+      message.error('网络错误，请检查连接');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // 当打开 ClawHub 模态框时自动查询
+  useEffect(() => {
+    if (showClawHubModal) {
+      fetchSkillHubSkills();
+    }
+  }, [showClawHubModal]);
+
+  // 导入 ClawHub 技能
+  const importClawHubSkill = (skill: any) => {
+    const id = Date.now().toString();
+    const newSkill: SkillItem = {
+      id,
+      title: skill.title,
+      content: skill.content,
+      type: (skill.type || 'prompt') as SkillType,
+      category: skill.category || undefined,
+      tags: skill.tags || [],
+      usageCount: 0,
+      version: 1,
+      createTime: new Date().toLocaleString(),
+      updateTime: new Date().toLocaleString(),
+      enabled: true,
+      shortcut: skill.shortcut || undefined,
+      description: skill.description || undefined,
+    };
+    addSkill(newSkill);
+    message.success('技能导入成功');
+  };
+
   // 随机颜色标签
   const tagColors = ["blue", "green", "orange", "purple", "red", "cyan"];
   const getTagColor = (index: number) => tagColors[index % tagColors.length];
@@ -238,14 +295,24 @@ const Skills: React.FC = () => {
           </div>
         }
         extra={
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={() => handleOpenModal(false)}
-            className="btn-press"
-          >
-            新建
-          </Button>
+          <div style={{ display: "flex", gap: 8 }}>
+            <Button
+              type="default"
+              icon={<SearchOutlined />}
+              onClick={() => setShowClawHubModal(true)}
+              className="btn-press"
+            >
+              ClawHub
+            </Button>
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={() => handleOpenModal(false)}
+              className="btn-press"
+            >
+              新建
+            </Button>
+          </div>
         }
         style={{
           marginTop: 8,
@@ -584,6 +651,124 @@ const Skills: React.FC = () => {
             onChange={(e) => setNewContent(e.target.value)}
             rows={4}
           />
+        </div>
+      </Modal>
+
+      {/* ClawHub 技能查询 Modal */}
+      <Modal
+        title={
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <SearchOutlined style={{ color: "var(--color-primary)" }} />
+            ClawHub 技能库
+          </div>
+        }
+        open={showClawHubModal}
+        onCancel={() => {
+          setShowClawHubModal(false);
+          setClawHubSkills([]);
+          setClawHubSearch("");
+        }}
+        width={800}
+        footer={[
+          <Button key="cancel" onClick={() => {
+            setShowClawHubModal(false);
+            setClawHubSkills([]);
+            setClawHubSearch("");
+          }}>
+            关闭
+          </Button>
+        ]}
+      >
+        <div style={{ marginBottom: 16 }}>
+          <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+            <Input
+              placeholder="搜索 ClawHub 技能..."
+              value={clawHubSearch}
+              onChange={(e) => setClawHubSearch(e.target.value)}
+              style={{ flex: 1 }}
+              allowClear
+            />
+            <Button
+              type="primary"
+              onClick={fetchSkillHubSkills}
+              loading={isLoading}
+              className="btn-press"
+            >
+              查询
+            </Button>
+          </div>
+          
+          <div style={{ height: 400, overflowY: "auto" }}>
+            {isLoading ? (
+              <div style={{ display: "flex", justifyContent: "center", padding: 40 }}>
+                <div className="loading-spinner" />
+              </div>
+            ) : clawHubSkills.length === 0 ? (
+              <Empty
+                image={Empty.PRESENTED_IMAGE_SIMPLE}
+                description={
+                  <span style={{ color: "var(--color-text-tertiary)" }}>
+                    暂无技能，尝试搜索其他关键词
+                  </span>
+                }
+                style={{ marginTop: 80 }}
+              />
+            ) : (
+              <List
+                dataSource={clawHubSkills}
+                renderItem={(skill) => (
+                  <List.Item
+                    key={skill.id}
+                    style={{
+                      borderBottom: "1px solid var(--color-border)",
+                      padding: "16px 0",
+                    }}
+                  >
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: 600, marginBottom: 4 }}>{skill.title}</div>
+                      {skill.description && (
+                        <div style={{ fontSize: 12, color: "var(--color-text-secondary)", marginBottom: 8 }}>
+                          {skill.description}
+                        </div>
+                      )}
+                      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
+                        <Tag color={getTypeColor((skill.type || 'prompt') as SkillType)}>
+                          {getTypeLabel((skill.type || 'prompt') as SkillType)}
+                        </Tag>
+                        {skill.category && (
+                          <Tag color={getTagColor(0)}>
+                            {skill.category}
+                          </Tag>
+                        )}
+                      </div>
+                      <div
+                        style={{
+                          height: "40px",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          display: "-webkit-box",
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: "vertical",
+                          color: "var(--color-text-secondary)",
+                          lineHeight: 1.4,
+                        }}
+                      >
+                        {skill.content}
+                      </div>
+                    </div>
+                    <Button
+                      type="primary"
+                      size="small"
+                      onClick={() => importClawHubSkill(skill)}
+                      className="btn-press"
+                    >
+                      导入
+                    </Button>
+                  </List.Item>
+                )}
+              />
+            )}
+          </div>
         </div>
       </Modal>
     </div>
