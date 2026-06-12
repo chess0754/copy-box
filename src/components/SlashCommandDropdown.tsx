@@ -1,9 +1,7 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { useNoteStore } from "../store/noteStore";
 import { Typography, Tag, Empty } from "antd";
-import {
-  FileTextOutlined,
-} from "@ant-design/icons";
+import { FileTextOutlined } from "@ant-design/icons";
 
 const { Text } = Typography;
 
@@ -32,8 +30,9 @@ const SlashCommandDropdown: React.FC<SlashCommandDropdownProps> = ({
   onClose,
 }) => {
   const notes = useNoteStore((state) => state.notes);
-
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const listRef = useRef<HTMLDivElement>(null);
+  const selectedRef = useRef<HTMLDivElement>(null);
 
   const allItems = useMemo<SlashCommandItem[]>(() => {
     const noteItems: SlashCommandItem[] = notes.map((note) => ({
@@ -43,7 +42,6 @@ const SlashCommandDropdown: React.FC<SlashCommandDropdownProps> = ({
       content: note.content,
       icon: <FileTextOutlined />,
     }));
-
     return noteItems;
   }, [notes]);
 
@@ -57,81 +55,82 @@ const SlashCommandDropdown: React.FC<SlashCommandDropdownProps> = ({
     );
   }, [allItems, searchText]);
 
-  const groupedItems = useMemo(() => {
-    const notes = filteredItems.filter((item) => item.type === "note");
-    return { notes };
-  }, [filteredItems]);
-
+  // 搜索文本变化时重置选中索引
   useEffect(() => {
     setSelectedIndex(0);
   }, [filteredItems]);
 
+  // 隐藏时重置
   useEffect(() => {
     if (!visible) {
       setSelectedIndex(0);
     }
   }, [visible]);
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (!visible || filteredItems.length === 0) return;
-
-    if (e.key === "ArrowDown") {
-      e.preventDefault();
-      e.stopPropagation();
-      setSelectedIndex((prev) =>
-        prev < filteredItems.length - 1 ? prev + 1 : 0
-      );
-    } else if (e.key === "ArrowUp") {
-      e.preventDefault();
-      e.stopPropagation();
-      setSelectedIndex((prev) =>
-        prev > 0 ? prev - 1 : filteredItems.length - 1
-      );
-    } else if (e.key === "Enter") {
-      e.preventDefault();
-      e.stopPropagation();
-      if (filteredItems[selectedIndex]) {
-        onSelect(filteredItems[selectedIndex]);
-      }
-    } else if (e.key === "Escape") {
-      e.preventDefault();
-      e.stopPropagation();
-      onClose();
+  // 自动滚动选中项到可见区域
+  useEffect(() => {
+    if (selectedRef.current) {
+      selectedRef.current.scrollIntoView({ block: "nearest" });
     }
-  };
+  }, [selectedIndex]);
+
+  // 全局键盘监听
+  const handleGlobalKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (!visible) return;
+
+      const preventAndStop = () => {
+        e.preventDefault();
+        e.stopPropagation();
+      };
+
+      switch (e.key) {
+        case "ArrowDown":
+          preventAndStop();
+          if (filteredItems.length === 0) return;
+          setSelectedIndex((prev) =>
+            prev < filteredItems.length - 1 ? prev + 1 : 0
+          );
+          break;
+
+        case "ArrowUp":
+          preventAndStop();
+          if (filteredItems.length === 0) return;
+          setSelectedIndex((prev) =>
+            prev > 0 ? prev - 1 : filteredItems.length - 1
+          );
+          break;
+
+        case "Enter":
+          preventAndStop();
+          if (filteredItems[selectedIndex]) {
+            onSelect(filteredItems[selectedIndex]);
+          }
+          break;
+
+        case "Escape":
+          preventAndStop();
+          onClose();
+          break;
+      }
+    },
+    [visible, filteredItems, selectedIndex, onSelect, onClose]
+  );
 
   useEffect(() => {
-    const handleGlobalKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && visible) {
-        onClose();
-      }
-    };
-    window.addEventListener("keydown", handleGlobalKeyDown);
-    return () => window.removeEventListener("keydown", handleGlobalKeyDown);
-  }, [visible, onClose]);
+    window.addEventListener("keydown", handleGlobalKeyDown, true);
+    return () => window.removeEventListener("keydown", handleGlobalKeyDown, true);
+  }, [handleGlobalKeyDown]);
 
   if (!visible) return null;
 
   if (filteredItems.length === 0) {
     return (
-      <div
-        style={{
-          position: "absolute",
-          bottom: "100%",
-          left: position.left,
-          width: 320,
-          background: "var(--color-bg-card)",
-          borderRadius: 8,
-          boxShadow: "var(--shadow-lg)",
-          border: "1px solid var(--color-border)",
-          zIndex: 1000,
-          padding: 16,
-          marginBottom: 8,
-        }}
-      >
+      <div className="slash-dropdown" style={{ left: position.left }}>
         <Empty
           image={Empty.PRESENTED_IMAGE_SIMPLE}
           description="没有找到匹配的提示词"
+          style={{ padding: "16px 0" }}
         />
       </div>
     );
@@ -140,111 +139,56 @@ const SlashCommandDropdown: React.FC<SlashCommandDropdownProps> = ({
   let globalIndex = -1;
 
   return (
-    <div
-      style={{
-        position: "absolute",
-        bottom: "100%",
-        left: position.left,
-        width: 320,
-        maxHeight: 400,
-        background: "var(--color-bg-card)",
-        borderRadius: 8,
-        boxShadow: "var(--shadow-lg)",
-        border: "1px solid var(--color-border)",
-        zIndex: 1000,
-        overflow: "hidden",
-        marginBottom: 8,
-      }}
-      onKeyDown={handleKeyDown}
-    >
-      <div
-        style={{
-          maxHeight: 400,
-          overflowY: "auto",
-        }}
-      >
-        {groupedItems.notes.length > 0 && (
-          <>
+    <div className="slash-dropdown" style={{ left: position.left }}>
+      <div ref={listRef} className="slash-dropdown-list">
+        {/* 分组标题 */}
+        <div className="slash-dropdown-header">
+          <Tag color="blue" style={{ marginRight: 8 }}>提示词</Tag>
+          <span>{filteredItems.length} 个</span>
+        </div>
+
+        {/* 列表项 */}
+        {filteredItems.map((item) => {
+          globalIndex++;
+          const isSelected = globalIndex === selectedIndex;
+          return (
             <div
-              style={{
-                padding: "8px 12px",
-                fontSize: 12,
-                color: "var(--color-text-tertiary)",
-                fontWeight: 500,
-                borderBottom: "1px solid var(--color-border)",
+              key={item.id}
+              ref={isSelected ? selectedRef : null}
+              className={`slash-dropdown-item${isSelected ? " selected" : ""}`}
+              onClick={() => onSelect(item)}
+              onMouseEnter={() => {
+                if (!isSelected) setSelectedIndex(globalIndex);
               }}
             >
-              <Tag color="blue" style={{ marginRight: 8 }}>
-                提示词
-              </Tag>
-              {groupedItems.notes.length} 个
+              <div className="slash-dropdown-item-main">
+                <span className="slash-dropdown-item-icon">{item.icon}</span>
+                <Text strong style={{ fontSize: 14 }}>{item.title}</Text>
+              </div>
+              <Text
+                type="secondary"
+                style={{ fontSize: 12, display: "block", marginTop: 2 }}
+                ellipsis
+              >
+                {item.content.slice(0, 50)}
+                {item.content.length > 50 ? "..." : ""}
+              </Text>
             </div>
-            {groupedItems.notes.map((item) => {
-              globalIndex++;
-              const isSelected = globalIndex === selectedIndex;
-              return (
-                <div
-                  key={item.id}
-                  onClick={() => onSelect(item)}
-                  style={{
-                    padding: "10px 12px",
-                    cursor: "pointer",
-                    background: isSelected
-                      ? "var(--color-primary-bg)"
-                      : "transparent",
-                    borderLeft: isSelected
-                      ? "3px solid var(--color-primary)"
-                      : "3px solid transparent",
-                    transition: "background 0.15s",
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!isSelected) {
-                      e.currentTarget.style.background =
-                        "var(--color-bg-base)";
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!isSelected) {
-                      e.currentTarget.style.background = "transparent";
-                    }
-                  }}
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 8,
-                    }}
-                  >
-                    <span style={{ color: "var(--color-primary)" }}>
-                      {item.icon}
-                    </span>
-                    <Text strong style={{ fontSize: 14 }}>
-                      {item.title}
-                    </Text>
-                  </div>
-                  {item.description && (
-                    <Text
-                      type="secondary"
-                      style={{ fontSize: 12 }}
-                      ellipsis
-                    >
-                      {item.description}
-                    </Text>
-                  )}
-                  <Text
-                    type="secondary"
-                    style={{ fontSize: 12 }}
-                    ellipsis
-                  >
-                    {item.content.slice(0, 50)}
-                    {item.content.length > 50 ? "..." : ""}
-                  </Text>
-                </div>
-              );
-            })}
-          </>
-        )}
+          );
+        })}
+      </div>
+
+      {/* 底部键盘提示 */}
+      <div className="slash-dropdown-footer">
+        <div className="slash-dropdown-hint">
+          <kbd>↑↓</kbd> 导航
+        </div>
+        <div className="slash-dropdown-hint">
+          <kbd>↵</kbd> 选择
+        </div>
+        <div className="slash-dropdown-hint">
+          <kbd>Esc</kbd> 关闭
+        </div>
       </div>
     </div>
   );

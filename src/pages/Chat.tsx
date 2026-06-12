@@ -28,6 +28,7 @@ import { useChatStore, ChatMessage } from "../store/chatStore";
 import { useApiStore } from "../store/apiStore";
 import ReactMarkdown from "react-markdown";
 import SlashCommandDropdown, { SlashCommandItem } from "../components/SlashCommandDropdown";
+import PromptInput, { insertPromptBubble, PromptTag } from "../components/PromptInput";
 
 const { TextArea } = Input;
 const { Text } = Typography;
@@ -55,13 +56,18 @@ const Chat: React.FC = () => {
   const [showSettings, setShowSettings] = useState(false);
   const [selectedApiId, setSelectedApiId] = useState<string | null>(null);
 
+  // 提示词气泡状态
+  const [promptTags, setPromptTags] = useState<PromptTag[]>([]);
+
   // 斜杠命令状态
   const [showSlashCommand, setShowSlashCommand] = useState(false);
-  const [slashCommandPosition, setSlashCommandPosition] = useState({ top: 0, left: 0 });
+  const [slashCommandLeft, setSlashCommandLeft] = useState(0);
   const [slashSearchText, setSlashSearchText] = useState("");
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<any>(null);
+  const promptInputRef = useRef<{ focus: () => void }>(null);
+  const promptEditorRef = useRef<HTMLDivElement | null>(null);
+  const dropdownContainerRef = useRef<HTMLDivElement>(null);
   const cleanupRef = useRef<(() => void) | null>(null);
 
   const activeSession = activeSessionId ? getSessionById(activeSessionId) : null;
@@ -104,6 +110,7 @@ const Chat: React.FC = () => {
   const handleClearMessages = () => {
     if (activeSessionId) {
       clearSessionMessages(activeSessionId);
+      setPromptTags([]);
       message.success("消息已清空");
     }
   };
@@ -113,51 +120,36 @@ const Chat: React.FC = () => {
     message.success("已复制到剪贴板");
   };
 
-  // 处理斜杠命令触发
-  const handleSlashCommandTrigger = (value: string, e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const slashIndex = value.lastIndexOf("/");
-    if (slashIndex === -1) {
-      setShowSlashCommand(false);
-      return;
+  // 处理斜杠命令触发（由 PromptInput 回调）
+  const handleSlashCommandTrigger = (slashText: string, rect: DOMRect) => {
+    setSlashSearchText(slashText);
+    // 将 viewport 坐标转为 dropdown 容器内的相对坐标
+    const container = dropdownContainerRef.current;
+    if (container) {
+      const containerRect = container.getBoundingClientRect();
+      setSlashCommandLeft(rect.left - containerRect.left);
+    } else {
+      setSlashCommandLeft(rect.left);
     }
-
-    const textBeforeSlash = value.substring(0, slashIndex);
-    const lastNewline = textBeforeSlash.lastIndexOf("\n");
-    const textAfterLastNewline = textBeforeSlash.substring(lastNewline + 1);
-
-    if (textAfterLastNewline.trim() !== "") {
-      setShowSlashCommand(false);
-      return;
-    }
-
-    const searchText = value.substring(slashIndex + 1);
-    setSlashSearchText(searchText);
-
-    const textarea = e.target as HTMLTextAreaElement;
-    const rect = textarea.getBoundingClientRect();
-    setSlashCommandPosition({
-      top: rect.top - 10,
-      left: rect.left,
-    });
-
     setShowSlashCommand(true);
   };
 
   // 处理选择斜杠命令项
   const handleSlashCommandSelect = (item: SlashCommandItem) => {
-    const slashIndex = inputValue.lastIndexOf("/");
-    const textBeforeSlash = inputValue.substring(0, slashIndex);
-    const lastNewline = textBeforeSlash.lastIndexOf("\n");
+    const editor = promptEditorRef.current;
+    if (!editor) {
+      setShowSlashCommand(false);
+      return;
+    }
 
-    const prefix = inputValue.substring(0, lastNewline + 1);
-    const insertContent = `{{提示词: ${item.title}}}`;
-
-    setInputValue(prefix + insertContent + "\n");
+    const tag: PromptTag = {
+      id: item.id,
+      title: item.title,
+      content: item.content,
+    };
+    setPromptTags((prev) => [...prev, tag]);
+    insertPromptBubble(editor, tag);
     setShowSlashCommand(false);
-    setTimeout(() => {
-      const textarea = inputRef.current as any;
-      if (textarea?.focus) textarea.focus();
-    }, 0);
   };
 
   // 关闭斜杠命令
@@ -166,7 +158,7 @@ const Chat: React.FC = () => {
   };
 
   const handleSendMessage = async () => {
-    if (!inputValue.trim() || isGenerating) return;
+    if ((!inputValue.trim() && promptTags.length === 0) || isGenerating) return;
     
     if (!activeApiConfig) {
       message.warning("请先选择或配置 API");
@@ -187,6 +179,7 @@ const Chat: React.FC = () => {
 
     addMessage(activeSessionId, userMessage);
     setInputValue("");
+    setPromptTags([]);
     setGenerating(true);
 
     const assistantMessageId = (Date.now() + 1).toString();
@@ -476,14 +469,12 @@ const Chat: React.FC = () => {
           }}
         >
           <div style={{ display: "flex", gap: 12 }}>
-            <div style={{ flex: 1, position: "relative" }}>
-              <TextArea
-                ref={inputRef}
+            <div ref={dropdownContainerRef} style={{ flex: 1, position: "relative" }}>
+              <PromptInput
                 value={inputValue}
-                onChange={(e) => {
-                  setInputValue(e.target.value);
-                  handleSlashCommandTrigger(e.target.value, e);
-                }}
+                promptTags={promptTags}
+                onChange={setInputValue}
+                onPromptTagsChange={setPromptTags}
                 onKeyDown={(e) => {
                   if (showSlashCommand) {
                     if (["ArrowUp", "ArrowDown", "Enter", "Escape"].includes(e.key)) {
@@ -494,13 +485,15 @@ const Chat: React.FC = () => {
                   handleKeyDown(e);
                 }}
                 placeholder="输入消息... (输入 / 选择提示词)"
-                autoSize={{ minRows: 1, maxRows: 4 }}
                 style={{ flex: 1 }}
                 disabled={isGenerating}
+                onSlashTrigger={handleSlashCommandTrigger}
+                inputRef={promptInputRef}
+                editorRef={promptEditorRef}
               />
               <SlashCommandDropdown
                 visible={showSlashCommand}
-                position={slashCommandPosition}
+                position={{ top: 0, left: slashCommandLeft }}
                 searchText={slashSearchText}
                 onSelect={handleSlashCommandSelect}
                 onClose={handleSlashCommandClose}
@@ -521,7 +514,7 @@ const Chat: React.FC = () => {
                 type="primary"
                 icon={<SendOutlined />}
                 onClick={handleSendMessage}
-                disabled={!inputValue.trim() || !activeApiConfig}
+                disabled={(!inputValue.trim() && promptTags.length === 0) || !activeApiConfig}
                 className="btn-press"
               >
                 发送

@@ -333,24 +333,14 @@ const Clipboard: React.FC = () => {
                               maxHeight: "200px",
                               overflow: "hidden",
                               borderRadius: "var(--radius-md)",
-                              background: "var(--color-bg-elevated)",
-                              padding: "var(--space-sm)",
-                              border: "1px solid var(--color-border)",
                             }}
                           >
                             <Image
                               src={item.content}
                               alt="clipboard image"
                               height={150}
-                              style={{ 
-                                objectFit: "contain",
-                                width: "100%",
-                              }}
-                              preview={{
-                                maskStyle: {
-                                  backgroundColor: "var(--color-bg-elevated)"
-                                }
-                              }}
+                              style={{ objectFit: "contain" }}
+                              preview
                             />
                           </div>
                         ) : (

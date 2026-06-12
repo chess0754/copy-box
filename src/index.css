@@ -1418,3 +1418,160 @@ a:hover {
     padding: var(--space-md);
   }
 }
+
+/* ============================================
+   PromptInput 提示词气泡输入框样式
+   ============================================ */
+
+.prompt-input-editor {
+  position: relative;
+}
+
+.prompt-input-editor:empty::before {
+  content: attr(data-placeholder);
+  color: var(--color-text-tertiary, #bfbfbf);
+  pointer-events: none;
+}
+
+.prompt-input-editor:focus {
+  border-color: var(--color-primary, #6366f1);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.15);
+}
+
+.prompt-bubble {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  margin: 0 2px;
+  font-size: 12px;
+  line-height: 18px;
+  color: #fff;
+  background: linear-gradient(135deg, var(--color-primary, #6366f1), #8B5CF6);
+  border-radius: 10px;
+  white-space: nowrap;
+  cursor: default;
+  user-select: none;
+  vertical-align: middle;
+  box-shadow: 0 1px 3px rgba(99, 102, 241, 0.3);
+  transition: box-shadow 0.15s;
+}
+
+.prompt-bubble:hover {
+  box-shadow: 0 2px 6px rgba(99, 102, 241, 0.45);
+}
+
+.prompt-bubble::before {
+  content: "📋 ";
+  font-size: 11px;
+}
+
+/* ============================================
+   SlashCommandDropdown 斜杠命令下拉菜单样式
+   ============================================ */
+
+.slash-dropdown {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  width: 320px;
+  max-height: 320px;
+  background: var(--color-bg-card);
+  border-radius: 8px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.16);
+  border: 1px solid var(--color-border);
+  z-index: 1000;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: slashDropdownIn 0.12s ease-out;
+}
+
+@keyframes slashDropdownIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.slash-dropdown-list {
+  flex: 1;
+  overflow-y: auto;
+  max-height: 276px;
+}
+
+.slash-dropdown-header {
+  padding: 8px 12px;
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+  font-weight: 500;
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+}
+
+.slash-dropdown-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background 0.1s;
+  border-left: 3px solid transparent;
+}
+
+.slash-dropdown-item:hover {
+  background: var(--color-bg-base);
+}
+
+.slash-dropdown-item.selected {
+  background: var(--color-primary-bg);
+  border-left-color: var(--color-primary);
+}
+
+.slash-dropdown-item-main {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.slash-dropdown-item-icon {
+  color: var(--color-primary);
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+}
+
+.slash-dropdown-footer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 12px;
+  border-top: 1px solid var(--color-border);
+  background: var(--color-bg-base);
+}
+
+.slash-dropdown-hint {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--color-text-tertiary);
+}
+
+.slash-dropdown-hint kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 18px;
+  padding: 0 4px;
+  font-size: 10px;
+  font-family: inherit;
+  line-height: 1;
+  color: var(--color-text-secondary);
+  background: var(--color-bg-elevated, #e8e8e8);
+  border: 1px solid var(--color-border);
+  border-radius: 3px;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08);
+}
